@@ -1,5 +1,5 @@
 "use client";
-import { ModeToggle } from "@/components/ui/theme-toggle";
+// import { ModeToggle } from "@/components/ui/theme-toggle";
 import Image from "next/image";
 import React from "react";
 import { Sparkles, Heart, Star, ShoppingBag } from "lucide-react";
@@ -26,7 +26,7 @@ export default function Home() {
                 <span className="block text-garbata-cream"> Fashion Style</span>
               </h1>
               <p className="text-xl text-white/90 mb-8 max-w-lg">
-                Connect with exclusive women's fashion sellers and discover unique pieces that express your individuality.
+                Connect with exclusive women&apos;s fashion sellers and discover unique pieces that express your individuality.
               </p>
               <Button
                 onClick={() => router.push('/auth')}
@@ -64,7 +64,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl mb-4">Curated Collections</h3>
               <p className="text-muted-foreground">
-                Discover handpicked fashion pieces from verified sellers who understand women's style.
+                Discover handpicked fashion pieces from verified sellers who understand women&apos;s style.
               </p>
             </Card>
 

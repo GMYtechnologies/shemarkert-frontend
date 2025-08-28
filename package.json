@@ -9,6 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+<<<<<<< HEAD
+=======
+    "@radix-ui/react-avatar": "^1.1.10",
+>>>>>>> 5a77b3463f0247e2339841a93e18423e490c75a8
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.7",

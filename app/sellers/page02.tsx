@@ -28,13 +28,13 @@ export default function Dashboard() {
   const tabs = ["Dashboard", "My Shops", "Profile", "Analytics"];
 
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b">
         <div className="container mx-auto px-6 py-4">
         <div className="flex items-center  justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12  rounded-full flex items-center justify-center">
+            <div className="w-12 h-12  bg-garbata-gradient  rounded-full flex items-center justify-center">
               <Store className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -60,7 +60,7 @@ export default function Dashboard() {
       <nav className="flex justify-center mb-8">
         <div className="container mx-auto px-16 py-8">
 
-        <div className="bg-purple-500 rounded-full p-1 grid grid-cols-4 gap-2">
+        <div className="bg-garbata-background rounded-full p-1 grid grid-cols-4 gap-2">
           {tabs.map((tab) => (
             <button
               key={tab}

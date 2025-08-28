@@ -29,7 +29,7 @@ export default function Home() {
                 Connect with exclusive women&apos;s fashion sellers and discover unique pieces that express your individuality.
               </p>
               <Button
-                onClick={() => router.push('/auth')}
+                onClick={() => router.push('/login')}
                 size="lg"
                 className="bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-full"
               >
@@ -146,7 +146,7 @@ export default function Home() {
             Join thousands of women who are already discovering amazing fashion finds and building their perfect wardrobe.
           </p>
           <Button
-            onClick={() => router.push('/auth')}
+            onClick={() => router.push('/login')}
             size="lg"
             className="bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-full"
           >

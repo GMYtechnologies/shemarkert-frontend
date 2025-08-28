@@ -1,5 +1,3 @@
-// app/page.js (Next.js 13+ with App Router)
-// or pages/index.js (Next.js 12)
 
 "use client";
 

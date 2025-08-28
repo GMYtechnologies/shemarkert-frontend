@@ -78,9 +78,9 @@ const AuthPage = () => {
       const userType = prompt("Are you a 'buyer' or 'seller'? Please type 'buyer' or 'seller':");
       
       if (userType?.toLowerCase() === 'seller') {
-        router.push('/sellers');
+        router.push('/sellersdashboard');
       } else if (userType?.toLowerCase() === 'buyer') {
-        router.push('/buyer-dashboard');
+        router.push('/product');
       } else {
         setError('Please select either "buyer" or "seller"');
         setLoading(false);
@@ -112,10 +112,10 @@ const AuthPage = () => {
       // Route based on selected user type during signup
       if (data.userType === 'seller') {
         console.log('Routing to seller dashboard');
-        router.push('/sellers');
+        router.push('/sellersdashboard');
       } else if (data.userType === 'buyer') {
-        console.log('Routing to buyer dashboard');
-        router.push('/buyer-dashboard');
+        console.log('Routing to product');
+        router.push('/product');
       } else {
         setError('Please select account type');
         setLoading(false);

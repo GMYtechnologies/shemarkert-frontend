@@ -49,7 +49,7 @@ interface Shop {
 interface SellerDashboardProps {
   user: any;
 }
-export default function SellerDashboard({ user }: SellerDashboardProps) {
+export default function SellerDashboard({  }: SellerDashboardProps) {
   const navigate = useRouter();
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [editingShopId, setEditingShopId] = useState<string | null>(null);
@@ -117,7 +117,7 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
                 <Store className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl">Welcome back, {user?.name || 'Fashion Entrepreneur'}</h1>
+                <h1 className="text-xl">Welcome back, {User?.name || 'Fashion Entrepreneur'}</h1>
                 <p className="text-muted-foreground">Seller Dashboard</p>
               </div>
             </div>
@@ -492,5 +492,3 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
     </div>
   );
 }
-
-

@@ -314,6 +314,7 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
                       <p className="text-sm text-muted-foreground">{shop.description}</p>
                     </CardContent>
                   </Card>
+                  
                 ))}
               </div>
             </div>

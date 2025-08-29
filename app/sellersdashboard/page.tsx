@@ -28,9 +28,10 @@ import {
   Mail,
   Edit
 } from 'lucide-react';
-import { ModeToggle } from '../sellers/page';
+//import { ModeToggle } from '../sellers/page';
 import { useRouter } from "next/navigation";
 import router from 'next/router';
+import { ModeToggle } from '@/components/ui/theme-toggle';
 
 
 interface Shop {

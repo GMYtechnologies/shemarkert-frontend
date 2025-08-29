@@ -84,12 +84,12 @@ export default function Page(): JSX.Element {
     },
     {
       id: 'halo',
-      name: 'Halo Pesa',
+      //name: 'Halo Pesa',
       companyCode: '007777',
       exampleRef: '903012345678',
       logo: '/images/halo.png',
       desc: 'Halo Pesa (Lipa Namba supported)',
-      
+      name: ''
     },
   ];
 
@@ -323,34 +323,30 @@ export default function Page(): JSX.Element {
             </div>
 
             <div className="modal-body">
-              <p className="muted">Tumia Lipa Haraka kwa {selectedProvider.name}</p>
+              <p className="muted">Tumia Lipa kwa simu {selectedProvider.name}</p>
 
               <div className="mobile-row">
                 <div className="mobile-icon">📱</div>
-                <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07XXXXXXXX" />
-                <button className="lipa-button" onClick={onLipaHaraka} disabled={paymentPending}>
-                  {paymentPending ? 'Sending...' : 'LIPA HARAKA'}
-                </button>
+                <h1>LIPA NO:131345: JINA WALII GKUKU (MITANDAO YOTE)</h1> 
+                
               </div>
 
               <div className="maelekezo">
                 <h6>MAELEKEZO</h6>
                 <ol>
-                  <li>Piga menu ya mobile money (USSD/app) kama ulivyo.</li>
-                  <li>Chagua Lipa kwa Namba / Pay by Number (au teua Lipa Haraka).</li>
-                  <li>Weka namba ya kampuni: <strong>{selectedProvider.companyCode}</strong>
+                  <li>1.Piga menu ya mobile money (USSD/app) kama ulivyo.</li>
+                  <li>2.Chagua Lipa kwa Namba / Pay by Number .</li>
+                  <li>3.Weka namba ya kampuni: <strong>{selectedProvider.companyCode}</strong>
                     <button className="copy-btn" onClick={() => copyToClipboard(selectedProvider.companyCode)}><Copy /></button>
                   </li>
-                  <li>Weka kumbukumbu/reference: <strong>{selectedProvider.exampleRef}</strong>
+                  <li>4.Weka kumbukumbu/reference: <strong>{selectedProvider.exampleRef}</strong>
                     <button className="copy-btn" onClick={() => copyToClipboard(selectedProvider.exampleRef)}><Copy /></button>
                   </li>
-                  <li>Weka kiasi: <strong>TZS {plan.price.toLocaleString()}</strong></li>
-                  <li>Weka PIN na thibitisha.</li>
+                  <li>5.Weka kiasi: <strong>TZS {plan.price.toLocaleString()}</strong></li>
+                  <li>6.Weka PIN na thibitisha.</li>
                 </ol>
 
-                <p className="muted small">If you used the Lipa Haraka button, you should see a prompt on your phone to enter PIN.</p>
-
-                {message && <div className="info-box">{message}</div>}
+                            {message && <div className="info-box">{message}</div>}
 
                 {paymentPending && (
                   <div className="pending-actions">

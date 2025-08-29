@@ -1,53 +1,20 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
+import * as RadixAvatar from "@radix-ui/react-avatar";
+import React from "react";
+import Image from "next/image";
 
-import { cn } from "@/lib/utils"
+/* Re-export Radix pieces as named exports so your existing imports keep working */
+export const Avatar = RadixAvatar.Root;
+export const AvatarImage = RadixAvatar.Image;
+export const AvatarFallback = RadixAvatar.Fallback;
 
-function Avatar({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Root>) {
-  return (
-    <AvatarPrimitive.Root
-      data-slot="avatar"
-      className={cn(
-        "relative flex size-8 shrink-0 overflow-hidden rounded-full",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function AvatarImage({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
-  return (
-    <AvatarPrimitive.Image
-      data-slot="avatar-image"
-      className={cn("aspect-square size-full", className)}
-      {...props}
-    />
-  )
-}
-
-function AvatarFallback({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
-  return (
-    <AvatarPrimitive.Fallback
-      data-slot="avatar-fallback"
-      className={cn(
-        "bg-muted flex size-full items-center justify-center rounded-full",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-export { Avatar, AvatarImage, AvatarFallback }
+/* Optional — small wrapper that uses next/image automatically (if you prefer) */
+// export function AvatarImageNext({ src, alt, className, ...props }: any) {
+//   return (
+//     // Radix expects <Avatar.Image> element; you can wrap or use Radix directly
+//     <RadixAvatar.Image asChild {...props}>
+//       <Image src={src} alt={alt} fill className={className} />
+//     </RadixAvatar.Image>
+//   );
+// }

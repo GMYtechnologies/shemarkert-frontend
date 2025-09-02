@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import { Activity } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -27,7 +28,8 @@ import {
   Heart,
   Eye,
   Mail,
-  Edit
+  Edit,
+  UsersRound
 } from 'lucide-react';
 import { ModeToggle } from '../sellers/page';
 import { useRouter } from "next/navigation";
@@ -67,6 +69,8 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
   const navigate = useRouter();
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [editingShopId, setEditingShopId] = useState<string | null>(null);
+  const [monthlyViews, setMonthlyViews] = useState<number | null>(null);
+  const [monthlyLikes, setMonthlyLikes] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'shops' | 'profile' | 'analytics' | 'reviews'>('dashboard');
   // Mock shops data - in real app would come from API
   const [shops, setShops] = useState<Shop[]>([
@@ -191,7 +195,7 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm">Total Views</CardTitle>
+                  <CardTitle className="text-sm">TotalViews</CardTitle>
                   <Eye className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -280,177 +284,130 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
           
 
           <TabsContent value="analytics">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card>
+            {/* Simplified Analytics Dashboard - No Charts */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <Card className="border-l-4 border-l-blue-500">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm">Total Views</CardTitle>
-                  <Eye className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm">Monthly Views</CardTitle>
+                  <Eye className="h-4 w-4 text-blue-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl text-primary">2,847</div>
-                  <p className="text-xs text-muted-foreground">+12% from last month</p>
+                  <div className="text-2xl text-primary">{monthlyViews}</div>
+                  <div className="flex items-center gap-1 text-xs text-green-600">
+                    <TrendingUp className="h-3 w-3" />
+                    +12% from last month
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-l-4 border-l-red-500">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm">Shop Ratings</CardTitle>
-                  <Heart className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm">Monthly Likes</CardTitle>
+                  <Heart className="h-4 w-4 text-red-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl text-primary">{monthlyLikes}</div>
+                  <div className="flex items-center gap-1 text-xs text-green-600">
+                    <TrendingUp className="h-3 w-3" />
+                    +18% growth
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-l-4 border-l-purple-500">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm">Avg. Rating</CardTitle>
+                  <Star className="h-4 w-4 text-yellow-500" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl text-primary">{avgRating.toFixed(1)}★</div>
-                  <p className="text-xs text-muted-foreground">Based on customer reviews</p>
+                  <div className="flex items-center gap-1 text-xs text-green-600">
+                    <TrendingUp className="h-3 w-3" />
+                    +0.3 this month
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Product Performance Summary */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Performing Products</CardTitle>
+                  <CardDescription>Ranked by engagement (likes and views)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {mockProducts.sort((a, b) => b.likes - a.likes).map((product, index) => (
+                      <div key={product.id} className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm">
+                            #{index + 1}
+                          </div>
+                          <div>
+                            <p className="text-sm">{product.name}</p>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Heart className="h-3 w-3 text-red-500" />
+                              {product.likes}
+                              <Eye className="h-3 w-3 text-blue-500" />
+                              {product.views}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-primary">TZS {product.price.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm">Inquiries</CardTitle>
-                  <Mail className="h-4 w-4 text-muted-foreground" />
+                <CardHeader>
+                  <CardTitle>Quick Insights</CardTitle>
+                  <CardDescription>Key business observations</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl text-primary">89</div>
-                  <p className="text-xs text-muted-foreground">This month</p>
+                <CardContent className="space-y-4">
+                  <div className="p-3 bg-green-50 border-l-4 border-green-500 rounded">
+                    <div className="flex items-center gap-2 mb-1">
+                      <TrendingUp className="h-4 w-4 text-green-600" />
+                      <span className="text-sm text-green-800">Growth Trend</span>
+                    </div>
+                    <p className="text-xs text-green-700">Your product likes increased by 18% this month</p>
+                  </div>
+
+                  <div className="p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Star className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm text-blue-800">Top Performer</span>
+                    </div>
+                    <p className="text-xs text-blue-700">Elegant Summer Dress is your most liked product</p>
+                  </div>
+
+                  <div className="p-3 bg-purple-50 border-l-4 border-purple-500 rounded">
+                    <div className="flex items-center gap-2 mb-1">
+                      <UsersRound className="h-4 w-4 text-purple-600" />
+                      <span className="text-sm text-purple-800">Customer Insight</span>
+                    </div>
+                    <p className="text-xs text-purple-700">Average rating improved by 0.3 stars</p>
+                  </div>
+
+                  <div className="p-3 bg-pink-50 border-l-4 border-pink-500 rounded">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Activity className="h-4 w-4 text-pink-600" />
+                      <span className="text-sm text-pink-800">Engagement Rate</span>
+                    </div>
+                    <p className="text-xs text-pink-700">76% engagement rate - Great job!</p>
+                  </div>
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm">Favorites</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl text-primary">345</div>
-                  <p className="text-xs text-muted-foreground">Products favorited</p>
-                </CardContent>
-              </Card>
             </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Overview</CardTitle>
-                <CardDescription>Your business performance metrics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Business Visibility</span>
-                    <div className="flex items-center gap-2 w-32">
-                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                        <div className="w-32 h-2 bg-gradient -to-r from-purple-500 to-pink-500" style={{ width: '75%' }}>
-                      </div>
-                      <span className="text-sm">75%</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Customer Engagement</span>
-                    <div className="flex items-center gap-2 w-32">
-                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                        <div className="w-32 h-2 bg-gradient -to-r from-purple-500 to-pink-500" style={{ width: '87%' }}>
-                      </div>
-                      <span className="text-sm">87%</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Product Quality Rating</span>
-                    <div className="flex items-center gap-2 w-32">
-                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                        <div className="w-32 h-2 bg-gradient-to-r from-purple-500 to-pink-500" style={{ width: '94%' }}>
-                      </div>
-                      <span className="text-sm">94%</span>
-                    </div>
-                  </div>
-                </div>
-             </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Edit Shop Profile Modal */}
-      {editingShopId && (
-        <Dialog open={!!editingShopId} onOpenChange={() => setEditingShopId(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Edit Shop Profile</DialogTitle>
-              <DialogDescription>Update your shop information and details</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-shop-name">Shop Name</Label>
-                  <Input
-                    id="edit-shop-name"
-                    value={editFormData.name}
-                    onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-location">Location</Label>
-                  <Input
-                    id="edit-location"
-                    value={editFormData.location}
-                    onChange={(e) => setEditFormData({...editFormData, location: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-phone">Phone</Label>
-                  <Input
-                    id="edit-phone"
-                    value={editFormData.contact}
-                    onChange={(e) => setEditFormData({...editFormData, contact: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-email">Email</Label>
-                  <Input
-                    id="edit-email"
-                    type="email"
-                    value={editFormData.email}
-                    onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-image">Shop Image URL</Label>
-                <Input
-                  id="edit-image"
-                  value={editFormData.image}
-                  onChange={(e) => setEditFormData({...editFormData, image: e.target.value})}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-description">Shop Description</Label>
-                <Textarea
-                  id="edit-description"
-                  value={editFormData.description}
-                  onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
-                />
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                <Button onClick={handleSaveShopEdit} className="bg-gradient-to-r from-purple-500 to-pink-500">
-                  Save Changes
-                </Button>
-                <Button variant="outline" onClick={() => setEditingShopId(null)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-        )
-      }
-        </TabsContent>
-     </Tabs>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
-    </div>
-  );
+  )
 }
 
 

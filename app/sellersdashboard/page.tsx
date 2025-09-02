@@ -18,6 +18,7 @@ import {
 import ShopManagement from '../ShopManagement';
 import { Label } from "@/components/ui/label"
 import { 
+  Star,
   Store, 
   User, 
   TrendingUp,
@@ -33,6 +34,19 @@ import { useRouter } from "next/navigation";
 import router from 'next/router';
 import { ModeToggle } from '@/components/ui/theme-toggle';
 
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+  likes: number;
+  views: number;
+};
+type Review = {
+  id: string;
+  product: string;
+  comment: string;
+  rating: number;
+};
 
 interface Shop {
   id: string;
@@ -54,7 +68,7 @@ export default function SellerDashboard({  }: SellerDashboardProps) {
   const navigate = useRouter();
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [editingShopId, setEditingShopId] = useState<string | null>(null);
-  
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'shops' | 'profile' | 'analytics' | 'reviews'>('dashboard');
   // Mock shops data - in real app would come from API
   const [shops, setShops] = useState<Shop[]>([
     {
@@ -79,6 +93,16 @@ export default function SellerDashboard({  }: SellerDashboardProps) {
     email: '',
     image: ''
   });
+  const mockProducts: Product[] = [
+    { id: 'p1', name: 'Elegant Red Dress', price: 120000, likes: 250, views: 1500 },
+    { id: 'p2', name: 'Casual Blue Jeans', price: 80000, likes: 180, views: 1200 },
+    //... more products
+  ];
+  const mockReviews: Review[] = [
+    { id: 'r1', product: 'Elegant Red Dress', comment: 'Absolutely love this dress! Fits perfectly and the quality is top-notch.', rating: 5 },
+    { id: 'r2', product: 'Casual Blue Jeans', comment: 'Great jeans for everyday wear. Very comfortable and stylish.', rating: 4 },
+    //... more reviews
+  ];
 
   const totalShops = shops.length;
   const totalProducts = shops.reduce((sum, shop) => sum + shop.totalProducts, 0);
@@ -106,6 +130,11 @@ export default function SellerDashboard({  }: SellerDashboardProps) {
     setEditingShopId(null);
     alert('Shop profile updated successfully!');
   };//
+
+  //=====Derive metrics=====
+  const totalLikes = mockProducts.reduce((sum, product) => sum + product.likes, 0);
+  const totalViews = mockProducts.reduce((sum, product) => sum + product.views, 0);
+  const avgProductRating = mockReviews.reduce((sum, review) => sum + review.rating, 0) / mockReviews.length;  0;
   return (
 
     <div className="min-h-screen bg-background">
@@ -144,124 +173,103 @@ export default function SellerDashboard({  }: SellerDashboardProps) {
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+         <TabsContent value="dashboard">
+            {/* Top Metrics Cards - Only Likes and Views */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm">Total Shops</CardTitle>
-                  <Store className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl text-primary">{totalShops}</div>
-                  <p className="text-xs text-muted-foreground">active shops</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm">Total Products</CardTitle>
-                  <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl text-primary">{totalProducts}</div>
-                  <p className="text-xs text-muted-foreground">across all shops</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm">Estimated Value</CardTitle>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl text-primary">TZS {totalValue.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">inventory value</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm">Average Rating</CardTitle>
+                  <CardTitle className="text-sm">Total Likes</CardTitle>
                   <Heart className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl text-primary">{avgRating.toFixed(1)}★</div>
-                  <p className="text-xs text-muted-foreground">shop ratings</p>
+                  <div className="text-2xl text-primary">{totalLikes.toLocaleString()}</div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <TrendingUp className="h-3 w-3 text-green-500" />
+                    +15% from last month
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm">Total Views</CardTitle>
+                  <Eye className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl text-primary">{totalViews.toLocaleString()}</div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <TrendingUp className="h-3 w-3 text-green-500" />
+                    +8% this month
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-6">
+            {/* Product Performance - Simplified without stock info */}
+            <div className="grid lg:grid-cols-2 gap-6 mb-8">
               <Card>
                 <CardHeader>
-                  <CardTitle>Business Overview</CardTitle>
-                  <CardDescription>Your selling journey at a glance</CardDescription>
+                  <CardTitle>Product Performance</CardTitle>
+                  <CardDescription>Most liked products</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Business Growth</span>
-                    <div className="flex items-center gap-2 w-32">
-                      <div className=" h-2 bg-secondary rounded-full overflow-hidden">
-                     <div className="bg-gradient-to-r from-purple-500 to-pink-500" style={{ width: '75%' }}>
+                <CardContent>
+                  <div className="space-y-4">
+                    {mockProducts.slice(0, 5).map((product, index) => (
+                      <div key={product.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-garbata-gradient rounded-full flex items-center justify-center text-white text-sm">
+                            #{index + 1}
+                          </div>
+                          <div>
+                            <p className="text-sm">{product.name}</p>
+                            <p className="text-xs text-muted-foreground">TZS {product.price.toLocaleString()}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center gap-1">
+                            <Heart className="h-3 w-3 text-red-500" />
+                            <span className="text-sm text-primary">{product.likes}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Eye className="h-3 w-3 text-blue-500" />
+                            <span className="text-xs text-muted-foreground">{product.views}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
-                      </div>
-                      <span className="text-sm">75%</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Shop Performance</span>
-                    <div className="flex items-center gap-2 w-32">
-                      <div className=" w-48 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div className="h-2 bg-gradient -to-r from-purple-500 to-pink-500" style={{ width: '87%' }}>
-                      </div>
-                      <span className="text-sm">87%</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Customer Satisfaction</span>
-                    <div className="flex items-center gap-2 w-32">
-                      <div className="w-32 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div className="h-2 bg-gradient-to-r from-purple-500 to-pink-500" style={{ width: '94%' }}>
-                      </div>
-                      <span className="text-sm">94%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-             </div>
-             </CardContent>
-             </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Statistics</CardTitle>
-                  <CardDescription>Key metrics for your business</CardDescription>
+                  <CardTitle>Customer Reviews</CardTitle>
+                  <CardDescription>Latest feedback from buyers</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                      Profile Views
-                    </span>
-                    <span className="text-primary">2,847</span>
+                <CardContent>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                      <span className="text-2xl text-primary">{avgRating.toFixed(1)}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">{mockReviews.length} reviews</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      Customer Inquiries
-                    </span>
-                    <span className="text-primary">89</span>
+                  <div className="space-y-3">
+                    {mockReviews.slice(0, 3).map((review) => (
+                      <div key={review.id} className="border-l-2 border-primary pl-3">
+                        <p className="text-sm">{review.comment}</p>
+                        <p className="text-xs text-muted-foreground">{review.product}</p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">
-                      <Heart className="h-4 w-4 text-muted-foreground" />
-                      Product Favorites
-                    </span>
-                    <span className="text-primary">345</span>
-                  </div>
+                  <Button variant="outline" className="w-full mt-4" onClick={() => setActiveTab('reviews')}>
+                    View All Reviews
+                  </Button>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
+
 
           <TabsContent value="shops">
             <ShopManagement 

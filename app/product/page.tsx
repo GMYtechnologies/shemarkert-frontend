@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import BuyerHeader from "@/components/BuyerHeader";
-
 import { Heart, Star, User } from "lucide-react";
 import ProductDetailsDialog from "@/components/ProductDetailsDialog";
-import Categories from "@/components/Categories";
+import Categories from "../categories";
 import BuyerProfile from "@/components/BuyerProfile";
 
 interface Shop {
@@ -52,7 +51,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "dresses",
       price: 225000,
       image:
-        "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=500&fit=crop",
+        "/images/summerdress.jpeg",
       sizes: ["XS", "S", "M", "L", "XL"],
       colors: ["Pink", "Blue", "White"],
       description:
@@ -76,7 +75,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "bags",
       price: 400000,
       image:
-        "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=500&fit=crop",
+        "/images/handbag.jpeg",
       sizes: ["One Size"],
       colors: ["Black", "Brown", "Tan"],
       description:
@@ -96,7 +95,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "tops",
       price: 189000,
       image:
-        "https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?w=400&h=500&fit=crop",
+        "/images/silkblouse.jpeg",
       sizes: ["XS", "S", "M", "L"],
       colors: ["White", "Cream", "Light Blue"],
       description: "Premium silk blouse perfect for professional and casual wear.",
@@ -117,7 +116,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "maternity",
       price: 185000,
       image:
-        "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=500&fit=crop",
+        "/images/maternitydress.jpeg",
       sizes: ["S", "M", "L", "XL"],
       colors: ["Navy", "Pink", "Burgundy"],
       description: "Comfortable and stylish maternity dress for expecting mothers.",
@@ -131,7 +130,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "wedding-dresses",
       price: 800000,
       image:
-        "https://images.unsplash.com/photo-1594736797933-d0d2d19b2d10?w=400&h=500&fit=crop",
+        "/images/weddingdress.jpeg",
       sizes: ["XS", "S", "M", "L", "XL"],
       colors: ["White", "Ivory", "Champagne"],
       description: "Exquisite wedding gown with intricate lace details and flowing train.",
@@ -145,7 +144,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "denims",
       price: 150000,
       image:
-        "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&h=500&fit=crop",
+        "/images/denimjeans.jpeg",
       sizes: ["26", "28", "30", "32", "34"],
       colors: ["Blue", "Black", "Light Blue"],
       description: "Comfortable casual jeans perfect for everyday wear.",
@@ -159,7 +158,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "sportswear",
       price: 85000,
       image:
-        "https://images.unsplash.com/photo-1506629905607-cc1994e98e07?w=400&h=500&fit=crop",
+        "/images/gymleggings.jpeg",
       sizes: ["XS", "S", "M", "L", "XL"],
       colors: ["Black", "Grey", "Purple"],
       description: "High-quality athletic leggings for workouts and active lifestyle.",
@@ -173,7 +172,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "shoes",
       price: 275000,
       image:
-        "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&h=500&fit=crop",
+        "/images/eveningheels.jpeg",
       sizes: ["36", "37", "38", "39", "40"],
       colors: ["Black", "Red", "Gold"],
       description: "Elegant evening heels perfect for special occasions and formal events.",
@@ -187,7 +186,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "bikinis",
       price: 120000,
       image:
-        "https://images.unsplash.com/photo-1582639590736-73bb2ba0c9c3?w=400&h=500&fit=crop",
+        "/images/bikiniset.jpeg",
       sizes: ["XS", "S", "M", "L"],
       colors: ["Coral", "Turquoise", "Black"],
       description: "Stylish bikini set perfect for beach vacations and poolside relaxation.",
@@ -201,7 +200,7 @@ export default function BuyerDashboard({  }: BuyerDashboardProps) {
       category: "hair-extensions",
       price: 320000,
       image:
-        "https://images.unsplash.com/photo-1559599238-1c998459d6fe?w=400&h=500&fit=crop",
+        "/images/hairextensions.jpeg",
       sizes: ['14"', '16"', '18"', '20"'],
       colors: ["Black", "Brown", "Blonde"],
       description: "Premium quality human hair extensions for natural looking length and volume.",

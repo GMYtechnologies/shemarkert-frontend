@@ -28,10 +28,9 @@ import {
   Mail,
   Edit
 } from 'lucide-react';
-//import { ModeToggle } from '../sellers/page';
+import { ModeToggle } from '../sellers/page';
 import { useRouter } from "next/navigation";
 import router from 'next/router';
-import { ModeToggle } from '@/components/ui/theme-toggle';
 
 
 interface Shop {
@@ -50,7 +49,7 @@ interface Shop {
 interface SellerDashboardProps {
   user: any;
 }
-export default function SellerDashboard({  }: SellerDashboardProps) {
+export default function SellerDashboard({ user }: SellerDashboardProps) {
   const navigate = useRouter();
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [editingShopId, setEditingShopId] = useState<string | null>(null);
@@ -118,7 +117,7 @@ export default function SellerDashboard({  }: SellerDashboardProps) {
                 <Store className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl">Welcome back, {User?.name || 'Fashion Entrepreneur'}</h1>
+                <h1 className="text-xl">Welcome back, {user?.name || 'Fashion Entrepreneur'}</h1>
                 <p className="text-muted-foreground">Seller Dashboard</p>
               </div>
             </div>
@@ -140,7 +139,7 @@ export default function SellerDashboard({  }: SellerDashboardProps) {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="shops">My Shops</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -270,56 +269,7 @@ export default function SellerDashboard({  }: SellerDashboardProps) {
             />
           </TabsContent>
 
-          <TabsContent value="profile">
-            <div className="max-w-4xl space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl">Shop Profiles</h2>
-                <p className="text-muted-foreground">Manage your shop information</p>
-              </div>
-
-              <div className="space-y-6">
-                {shops.map((shop, index) => (
-                  <Card key={shop.id}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <span>Shop {index + 1}: {shop.name}</span>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleEditShop(shop)}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Profile
-                        </Button>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="w-16 h-16">
-                          <AvatarImage src={shop.image} />
-                          <AvatarFallback>{shop.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <h3 className="text-lg">{shop.name}</h3>
-                          <p className="text-muted-foreground">{shop.location}</p>
-                          <p className="text-sm text-muted-foreground">{shop.contact}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center gap-1 text-sm">
-                            <Heart className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                            <span>{shop.rating}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">{shop.totalProducts} products</p>
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{shop.description}</p>
-                    </CardContent>
-                  </Card>
-                  
-                ))}
-              </div>
-            </div>
-          </TabsContent>
+          
 
           <TabsContent value="analytics">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -494,3 +444,5 @@ export default function SellerDashboard({  }: SellerDashboardProps) {
     </div>
   );
 }
+
+

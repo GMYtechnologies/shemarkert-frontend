@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,19 +43,21 @@ interface Product {
   name: string;
   category: string;
   price: number;
-  stock: number;
   image: string;
   sizes: string[];
+  size: string;
   colors: string[];
   description: string;
+  product: string;
 }
 
 interface ShopManagementProps {
   onShopSelect: (shop: Shop | null) => void;
   selectedShop: Shop | null;
+  onEditShop?: (shop: Shop) => void;
 }
 
-export default function ShopManagement({ onShopSelect, selectedShop }: ShopManagementProps) {
+export default function ShopManagement({ onShopSelect, selectedShop, onEditShop }: ShopManagementProps) {
   const [shops, setShops] = useState<Shop[]>([
     {
       id: '1',
@@ -69,6 +72,8 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
       products: []
     }
   ]);
+
+
 
   const [isAddingShop, setIsAddingShop] = useState(false);
   const [newShop, setNewShop] = useState({
@@ -90,7 +95,10 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
     sizes: [] as string[],
     colors: [] as string[],
     description: ''
+
   });
+
+
 
   const handleAddShop = () => {
     if (!newShop.name || !newShop.location || !newShop.contact) {
@@ -112,6 +120,20 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
     setIsAddingShop(false);
   };
 
+const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  setNewProduct({ ...newProduct, category: e.target.value }); 
+};
+
+const handleSizeChange = (size: string) => {
+  setNewProduct((prev) => ({
+    ...prev,
+    sizes: prev.sizes.includes(size)
+      ? prev.sizes.filter((s) => s !== size) // remove if already selected
+      : [...prev.sizes, size], // add if not selected
+  }));
+};
+
+
   const handleAddProduct = () => {
     if (!selectedShop || !newProduct.name || !newProduct.category || !newProduct.price) {
       alert('Please fill in all required fields');
@@ -123,11 +145,13 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
       name: newProduct.name,
       category: newProduct.category,
       price: parseFloat(newProduct.price),
-      stock: parseInt(newProduct.stock) || 0,
+    
       image: newProduct.image || 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=500&fit=crop',
       sizes: newProduct.sizes,
       colors: newProduct.colors,
-      description: newProduct.description
+      description: newProduct.description,
+      size: '',
+      product: ''
     };
 
     const updatedShops = shops.map(shop => 
@@ -211,47 +235,187 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Stock Quantity</Label>
-                    <Input
-                      type="number"
-                      value={newProduct.stock}
-                      onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
-                      placeholder="Enter stock quantity"
-                    />
+                    <Label>Product Status</Label>
+                    <select
+                    value= "available"
+                    onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
+                    >   
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="available">Available</SelectItem>
+                      <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                      <SelectItem value="discontinued">Discontinued</SelectItem>
+                    </SelectContent>
+                    </select>
                   </div>
-                </div>
+                 </div>
+                              
 
                 <div className="space-y-2">
-                  <Label>Product Image URL</Label>
+                  <Label>Product Image </Label>
                   <Input
-                    value={newProduct.image}
-                    onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
-                    placeholder="Enter image URL or leave empty for default"
-                  />
+                   type="file"  
+                   accept="image/*"
+                   onChange={(e)=>{
+                    const file = e.target.files?.[0];
+                    if(file){
+                      //in real app, upload to server or cloud storage here
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setNewProduct({...newProduct, image: reader.result as string});
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                   }}    />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Available Sizes (comma separated)</Label>
-                    <Input
-                      value={newProduct.sizes.join(', ')}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct, 
-                        sizes: e.target.value.split(',').map(s => s.trim()).filter(s => s)
-                      })}
-                      placeholder="XS, S, M, L, XL"
-                    />
+                    <Label>Available Sizes</Label>
+                    <select
+                    value=""
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if(value && !newProduct.sizes.includes(value)){
+                        setNewProduct({
+                          ...newProduct,
+                          sizes: [...newProduct.sizes, value]
+                        });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select shoe size" />
+                    <SelectContent>
+                       <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="6">6</SelectItem>
+                        <SelectItem value="7">7</SelectItem>
+                        <SelectItem value="8">8</SelectItem>
+                        <SelectItem value="9">9</SelectItem>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="11">11</SelectItem>
+                         <SelectItem value="12">12</SelectItem>
+                         </SelectContent>
+                    </SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select clothing size" />
+                    <SelectContent>
+                       <SelectItem value="XS">XS</SelectItem>
+                        <SelectItem value="S">S</SelectItem>
+                        <SelectItem value="M">M</SelectItem>
+                        <SelectItem value="L">L</SelectItem>
+                        <SelectItem value="XL">XL</SelectItem>
+                        <SelectItem value="XXL">XXL</SelectItem>
+                        <SelectItem value="One Size">One Size</SelectItem>
+
+                    </SelectContent>
+
+                    </SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder="leggings size" />
+                    <SelectContent>
+                       <SelectItem value="S">S</SelectItem>
+                        <SelectItem value="M">M</SelectItem>
+                        <SelectItem value="L">L</SelectItem>
+                        <SelectItem value="XL">XL</SelectItem>
+                        <SelectItem value="XXL">XXL</SelectItem>
+                        </SelectContent>
+                    </SelectTrigger>
+
+                    <SelectTrigger>
+                      <SelectValue placeholder="dress size" />
+                    <SelectContent>
+                      
+                       <SelectItem value="S">S</SelectItem>
+                        <SelectItem value="M">M</SelectItem>
+                        <SelectItem value="L">L</SelectItem>
+                        <SelectItem value="XL">XL</SelectItem>
+                        <SelectItem value="XXL">XXL</SelectItem>
+                        </SelectContent>
+
+                    </SelectTrigger>
+
+                    </select>     
+                    {newProduct.sizes.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {newProduct.sizes.map((size, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {size}
+                          <button
+                          className='ml-1 text-xs'
+                          onClick={() => setNewProduct({
+                            ...newProduct,
+                            sizes: newProduct.sizes.filter(s => s !== size)
+                          })}
+                          >
+                            ×
+                          </button>
+                        </Badge>
+                        ))}
+                       </div>
+                    )}
                   </div>
+                        
+
+
                   <div className="space-y-2">
-                    <Label>Available Colors (comma separated)</Label>
-                    <Input
-                      value={newProduct.colors.join(', ')}
-                      onChange={(e) => setNewProduct({
-                        ...newProduct, 
-                        colors: e.target.value.split(',').map(c => c.trim()).filter(c => c)
-                      })}
-                      placeholder="Red, Blue, Black, White"
-                    />
+                    <Label>Available Colors</Label>
+                    <select
+                    value=""
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if(value && !newProduct.colors.includes(value)){
+                        setNewProduct({
+                          ...newProduct,
+                          colors: [...newProduct.colors, value]
+                        });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select color" />
+                      </SelectTrigger>
+                    <SelectContent>
+                       <SelectItem value="Red">Red</SelectItem>
+                        <SelectItem value="Black">Black</SelectItem>
+                        <SelectItem value="White">White</SelectItem>
+                        <SelectItem value="maroon">maroon</SelectItem>
+                        <SelectItem value="Blue">Blue</SelectItem>
+                        <SelectItem value="Green">Green</SelectItem>
+                        <SelectItem value="Pink">Pink</SelectItem>
+                        <SelectItem value="Purple">Purple</SelectItem>
+                        <SelectItem value="Yellow">Yellow</SelectItem>
+                        <SelectItem value="Orange">Orange</SelectItem>
+                        <SelectItem value="Brown">Brown</SelectItem>
+                        <SelectItem value="Gray">Gray</SelectItem>
+                        <SelectItem value="Navy">Navy</SelectItem>
+                        <SelectItem value="Beige">Beige</SelectItem>
+                        <SelectItem value="Gold">Gold</SelectItem>
+                        <SelectItem value="Silver">Silver</SelectItem>
+                        <SelectItem value="Multicolor">Multicolor</SelectItem>
+                    </SelectContent>
+                    </select>
+                    {newProduct.colors.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {newProduct.colors.map((color, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {color}
+                          <button
+                          className='ml-1 text-xs'
+                          onClick={() => setNewProduct({
+                            ...newProduct,  
+                            colors: newProduct.colors.filter(c => c !== color)
+                          })}
+                          > 
+                            ×
+                          </button>
+                        </Badge>
+                        ))}
+                       </div>
+                    )}
+
                   </div>
                 </div>
 
@@ -293,7 +457,7 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
                   </Badge>
                   <span className="text-lg text-primary">TZS {product.price.toLocaleString()}</span>
                 </div>
-                <p className="text-sm text-muted-foreground mb-2">Stock: {product.stock} items</p>
+               
                 {product.sizes.length > 0 && (
                   <p className="text-xs text-muted-foreground mb-2">
                     Sizes: {product.sizes.join(', ')}
@@ -343,68 +507,102 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
           <DialogContent className="max-h-[85vh]">
             <DialogHeader className="flex-shrink-0">
               <DialogTitle>Add New Shop</DialogTitle>
-              <DialogDescription>Create a new shop to start selling your products</DialogDescription>
+              <DialogDescription>
+                Create a new shop to start selling your products
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 overflow-y-auto scrollbar-hide flex-1 min-h-0">
               <div className="space-y-2">
                 <Label>Shop Name *</Label>
                 <Input
                   value={newShop.name}
-                  onChange={(e) => setNewShop({...newShop, name: e.target.value})}
+                  onChange={(e) =>
+                    setNewShop({ ...newShop, name: e.target.value })
+                  }
                   placeholder="Enter shop name"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Location *</Label>
                 <Input
                   value={newShop.location}
-                  onChange={(e) => setNewShop({...newShop, location: e.target.value})}
+                  onChange={(e) =>
+                    setNewShop({ ...newShop, location: e.target.value })
+                  }
                   placeholder="City, Region"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Contact Number *</Label>
                 <Input
                   value={newShop.contact}
-                  onChange={(e) => setNewShop({...newShop, contact: e.target.value})}
+                  onChange={(e) =>
+                    setNewShop({ ...newShop, contact: e.target.value })
+                  }
                   placeholder="+255 xxx xxx xxx"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Email</Label>
                 <Input
                   value={newShop.email}
-                  onChange={(e) => setNewShop({...newShop, email: e.target.value})}
+                  onChange={(e) =>
+                    setNewShop({ ...newShop, email: e.target.value })
+                  }
                   placeholder="shop@example.com"
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label>Shop Image URL</Label>
+                <Label>Shop Image</Label>
                 <Input
-                  value={newShop.image}
-                  onChange={(e) => setNewShop({...newShop, image: e.target.value})}
-                  placeholder="Enter image URL or leave empty for default"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // In a real app, upload to server or cloud storage here
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setNewShop({
+                          ...newShop,
+                          image: reader.result as string,
+                        });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
                 />
+                <p className="text-xs text-muted-foreground">
+                  upload an image that represents your shop
+                </p>
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Shop Description</Label>
                 <Textarea
                   value={newShop.description}
-                  onChange={(e) => setNewShop({...newShop, description: e.target.value})}
+                  onChange={(e) =>
+                    setNewShop({ ...newShop, description: e.target.value })
+                  }
                   placeholder="Describe your shop..."
                 />
               </div>
-              
+
               <div className="flex gap-2 pt-4 flex-shrink-0">
-                <Button onClick={handleAddShop} className="bg-garbata-gradient hover:opacity-90">
+                <Button
+                  onClick={handleAddShop}
+                  className="bg-garbata-gradient hover:opacity-90"
+                >
                   Create Shop
                 </Button>
-                <Button variant="outline" onClick={() => setIsAddingShop(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddingShop(false)}
+                >
                   Cancel
                 </Button>
               </div>
@@ -415,10 +613,13 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {shops.map((shop) => (
-          <Card key={shop.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card
+            key={shop.id}
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+          >
             <CardContent className="p-4">
-              <img 
-                src={shop.image} 
+              <img
+                src={shop.image}
                 alt={shop.name}
                 className="w-full h-32 object-cover rounded-lg mb-4"
               />
@@ -426,11 +627,15 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
                 <h3 className="text-lg">{shop.name}</h3>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{shop.location}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {shop.location}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{shop.contact}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {shop.contact}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
@@ -439,14 +644,136 @@ export default function ShopManagement({ onShopSelect, selectedShop }: ShopManag
                   </div>
                   <Badge variant="outline">{shop.totalProducts} products</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground line-clamp-2">{shop.description}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {shop.description}
+                </p>
               </div>
-              <Button 
+              <Button
                 onClick={() => onShopSelect(shop)}
                 className="w-full mt-4 bg-garbata-gradient hover:opacity-90"
               >
                 Manage Shop
               </Button>
+
+              <Dialog open={isAddingShop} onOpenChange={setIsAddingShop}>
+                <DialogTrigger asChild>
+                  <Button
+                variant="outline"
+
+                className="w-full mt-4 bg-garbata-gradient hover:opacity-90"
+              >
+                <Edit className="mr-1 h-4 w-4" />
+                Edit
+              </Button>
+                </DialogTrigger>
+                <DialogContent className="max-h-[85vh]">
+                  <DialogHeader className="flex-shrink-0">
+                    <DialogTitle>Edit Shop profile</DialogTitle>
+                    <DialogDescription>
+                      Edit the shops profile according to your likings
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 overflow-y-auto scrollbar-hide flex-1 min-h-0">
+                    <div className="space-y-2">
+                      <Label>Shop Name *</Label>
+                      <Input
+                        value={newShop.name}
+                        onChange={(e) =>
+                          setNewShop({ ...newShop, name: e.target.value })
+                        }
+                        placeholder="Enter shop name"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Location *</Label>
+                      <Input
+                        value={newShop.location}
+                        onChange={(e) =>
+                          setNewShop({ ...newShop, location: e.target.value })
+                        }
+                        placeholder="City, Region"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Contact Number *</Label>
+                      <Input
+                        value={newShop.contact}
+                        onChange={(e) =>
+                          setNewShop({ ...newShop, contact: e.target.value })
+                        }
+                        placeholder="+255 xxx xxx xxx"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input
+                        value={newShop.email}
+                        onChange={(e) =>
+                          setNewShop({ ...newShop, email: e.target.value })
+                        }
+                        placeholder="shop@example.com"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Shop Image</Label>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            // In a real app, upload to server or cloud storage here
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setNewShop({
+                                ...newShop,
+                                image: reader.result as string,
+                              });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        upload images that represents your shop
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Shop Description</Label>
+                      <Textarea
+                        value={newShop.description}
+                        onChange={(e) =>
+                          setNewShop({
+                            ...newShop,
+                            description: e.target.value,
+                          })
+                        }
+                        placeholder="Describe your shop..."
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-4 flex-shrink-0">
+                      <Button
+                        onClick={handleAddShop}
+                        className="bg-garbata-gradient hover:opacity-90"
+                      >
+                        Update Shop
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsAddingShop(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         ))}

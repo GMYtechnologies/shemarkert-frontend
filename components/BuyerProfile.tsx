@@ -39,7 +39,7 @@ export default function BuyerProfile({ user, onBack }: BuyerProfileProps) {
       category: "dresses",
       price: 225000,
       image:
-        "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=200&h=250&fit=crop",
+        "/images/summerdress.jpeg",
       shop: "Dar Fashion House",
       likedDate: "2024-12-15",
     },
@@ -49,7 +49,7 @@ export default function BuyerProfile({ user, onBack }: BuyerProfileProps) {
       category: "bags",
       price: 400000,
       image:
-        "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=200&h=250&fit=crop",
+        "/images/handbag.jpeg",
       shop: "Zanzibar Luxury",
       likedDate: "2024-12-14",
     },
@@ -59,7 +59,7 @@ export default function BuyerProfile({ user, onBack }: BuyerProfileProps) {
       category: "tops",
       price: 189000,
       image:
-        "https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?w=200&h=250&fit=crop",
+        "/images/silkblouse.jpeg",
       shop: "Dar Fashion House",
       likedDate: "2024-12-13",
     },
@@ -69,7 +69,7 @@ export default function BuyerProfile({ user, onBack }: BuyerProfileProps) {
       category: "wedding-dresses",
       price: 800000,
       image:
-        "https://images.unsplash.com/photo-1594736797933-d0d2d19b2d10?w=200&h=250&fit=crop",
+        "./images/weddingdress.jpeg",
       shop: "Bridal Dreams Arusha",
       likedDate: "2024-12-12",
     },
@@ -79,7 +79,7 @@ export default function BuyerProfile({ user, onBack }: BuyerProfileProps) {
       category: "denims",
       price: 150000,
       image:
-        "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=200&h=250&fit=crop",
+        "/images/denimjeans.jpeg",
       shop: "Denim World Mwanza",
       likedDate: "2024-12-11",
     },

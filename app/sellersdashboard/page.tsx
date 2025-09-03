@@ -229,7 +229,7 @@ const avgCommentLength =
 
             {/* Product Performance - Simplified without stock info */}
             <div className="grid lg:grid-cols-2 gap-6 mb-8">
-              </div>
+              
               <Card>
                 <CardHeader>
                   <CardTitle>Product Performance</CardTitle>
@@ -264,7 +264,37 @@ const avgCommentLength =
                 </CardContent>
           
               </Card>
-            </TabsContent>
+               <Card>
+                <CardHeader>
+                  <CardTitle>Customer Reviews</CardTitle>
+                  <CardDescription>Latest feedback from buyers</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                      <span className="text-2xl text-primary">{avgRating.toFixed(1)}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">{mockReviews.length} reviews</span>
+                  </div>
+                  <div className="space-y-3">
+                    {mockReviews.slice(0, 3).map((review) => (
+                      <div key={review.id} className="border-l-2 border-primary pl-3">
+                        <p className="text-sm">{review.comment}</p>
+                        <p className="text-xs text-muted-foreground">{review.product}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {/* <Button variant="outline" className="w-full mt-4" onClick={() => setActiveTab('reviews')}>
+                    View All Reviews
+                  </Button> */}
+                </CardContent>
+              </Card>
+              </div>
+          </TabsContent>
+
+
+            
 
               
           <TabsContent value="reviews">

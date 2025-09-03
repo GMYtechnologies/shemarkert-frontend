@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Activity } from "lucide-react";
+import { MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -46,7 +48,8 @@ type Review = {
   id: string;
   product: string;
   comment: string;
-  rating: number;
+  customerName: string;
+  date?: string; 
 };
 
 interface Shop {
@@ -72,6 +75,19 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
   const [monthlyViews, setMonthlyViews] = useState<number | null>(null);
   const [monthlyLikes, setMonthlyLikes] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'shops' | 'profile' | 'analytics' | 'reviews'>('dashboard');
+  const topProducts = [
+  {
+    id: 'tp1',
+    name: 'Summer Maxi Dress',
+    image: '/images/maxi.jpg',
+    category: 'Dresses',
+    sales: 320,
+    reviews: 45,
+  },
+  // Add more products as needed
+];
+
+
   // Mock shops data - in real app would come from API
   const [shops, setShops] = useState<Shop[]>([
     {
@@ -102,10 +118,11 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
     //... more products
   ];
   const mockReviews: Review[] = [
-    { id: 'r1', product: 'Elegant Red Dress', comment: 'Absolutely love this dress! Fits perfectly and the quality is top-notch.', rating: 5 },
-    { id: 'r2', product: 'Casual Blue Jeans', comment: 'Great jeans for everyday wear. Very comfortable and stylish.', rating: 4 },
-    //... more reviews
+    { id: 'r1', product: 'Elegant Red Dress', comment: 'Absolutely love this dress! Fits perfectly and the quality is top-notch.', customerName: 'Amina M.', date: '2025-08-28' },
+    { id: 'r2', product: 'Casual Blue Jeans', comment: 'Great jeans for everyday wear. Very comfortable and stylish.', customerName: 'Zawadi K.', date: '2025-08-30' },
+    { id: 'r3', product: 'Kitenge Wrap Skirt', comment: 'Beautiful colors and perfect for hot weather!', customerName: 'Neema J.', date: '2025-09-01' },
   ];
+  
 
   const totalShops = shops.length;
   const totalProducts = shops.reduce((sum, shop) => sum + shop.totalProducts, 0);
@@ -137,7 +154,9 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
   //=====Derive metrics=====
   const totalLikes = mockProducts.reduce((sum, product) => sum + product.likes, 0);
   const totalViews = mockProducts.reduce((sum, product) => sum + product.views, 0);
-  const avgProductRating = mockReviews.reduce((sum, review) => sum + review.rating, 0) / mockReviews.length;  0;
+const avgCommentLength =
+  mockReviews.reduce((sum, review) => sum + review.comment.length, 0) / mockReviews.length || 0;
+
   return (
 
     <div className="min-h-screen bg-background">
@@ -210,6 +229,7 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
 
             {/* Product Performance - Simplified without stock info */}
             <div className="grid lg:grid-cols-2 gap-6 mb-8">
+              </div>
               <Card>
                 <CardHeader>
                   <CardTitle>Product Performance</CardTitle>
@@ -242,37 +262,78 @@ export default function SellerDashboard({ user }: SellerDashboardProps) {
                     ))}
                   </div>
                 </CardContent>
+          
               </Card>
+            </TabsContent>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Customer Reviews</CardTitle>
-                  <CardDescription>Latest feedback from buyers</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between mb-4">
+              
+          <TabsContent value="reviews">
+            {/* Simplified Reviews Dashboard - No Charts */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Customer Reviews</CardTitle>
+              <CardDescription>Overview of customer feedback</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="max-w-6xl space-y-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl">Customer Reviews</h2>
+                  <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                      <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                      <span className="text-2xl text-primary">{avgRating.toFixed(1)}</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">{mockReviews.length} reviews</span>
+                    <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                    <span className="text-lg">{avgRating.toFixed(1)} / 5.0</span>
                   </div>
-                  <div className="space-y-3">
-                    {mockReviews.slice(0, 3).map((review) => (
-                      <div key={review.id} className="border-l-2 border-primary pl-3">
-                        <p className="text-sm">{review.comment}</p>
-                        <p className="text-xs text-muted-foreground">{review.product}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <Button variant="outline" className="w-full mt-4" onClick={() => setActiveTab('reviews')}>
-                    View All Reviews
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+                  <p className="text-muted-foreground">{mockReviews.length} total reviews</p>
+                </div>
+              </div>
+              </div>
+            
 
+              {/* Individual Reviews */}
+              <div className="space-y-4">
+                <h3 className="text-lg">All Reviews</h3>
+                <div className="space-y-4">
+                  {mockReviews.map((review) => (
+                    <Card key={review.id}>
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="w-10 h-10">
+                              <AvatarFallback>{review.customerName.charAt(0)} </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-sm">{review.customerName}</h4>
+                              
+                              </div>
+                              <p className="text-xs text-muted-foreground">{review.product}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-muted-foreground">{review.date}</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-4">{review.comment}</p>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <MessageSquare className="h-3 w-3 mr-1" />
+                            Reply
+                          </Button>
+                          <Button size="sm" variant="ghost">
+                            <Heart className="h-3 w-3 mr-1" />
+                            Helpful
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+              </CardContent>
+            
+            
+            </Card>
+           </TabsContent>
 
           <TabsContent value="shops">
             <ShopManagement 

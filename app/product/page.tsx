@@ -8,4 +8,5 @@ const demoUser = { id: 1, name: "Demo Buyer", email: "buyer@demo.com", role: "bu
 
 export default function BuyerPage() {
   return <BuyerDashboard user={demoUser} />;
+
 }

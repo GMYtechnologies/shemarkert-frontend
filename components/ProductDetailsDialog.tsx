@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 
 interface Shop {
+  map: any;
+  length: number;
   id: number;
   name: string;
   rating: number;
@@ -43,7 +45,10 @@ interface Product {
   description: string;
   rating: number;
   likes: number;
-  shops: Shop[];
+  shop: Shop;
+  sellerId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ProductDetailsDialogProps {
@@ -89,7 +94,7 @@ export default function ProductDetailsDialog({
               </TabsTrigger>
               <TabsTrigger value="shops" className="flex items-center gap-2">
                 <Store className="h-4 w-4" />
-                Shops ({product.shops.length})
+                Shops ({product.shop.length})
               </TabsTrigger>
               <TabsTrigger value="specs" className="flex items-center gap-2">
                 <ShoppingBag className="h-4 w-4" />
@@ -167,8 +172,8 @@ export default function ProductDetailsDialog({
 
                     <div className="pt-4">
                       <p className="text-sm text-muted-foreground mb-2">
-                        Available at {product.shops.length} shop
-                        {product.shops.length !== 1 ? "s" : ""}
+                        Available at {product.shop.length} shop
+                        {product.shop.length !== 1 ? "s" : ""}
                       </p>
                       <Button
                         onClick={() => setActiveTab("shops")}
@@ -195,7 +200,7 @@ export default function ProductDetailsDialog({
 
                 <div className="flex-1 overflow-y-auto scrollbar-hide">
                   <div className="space-y-4 pr-1">
-                    {product.shops.map((shop) => (
+                    {product.shop.map((shop) => (
                       <Card key={shop.id} className="border-2">
                         <CardContent className="p-4">
                           <div className="flex justify-between items-start mb-4">

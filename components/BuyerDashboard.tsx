@@ -6,16 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import BuyerHeader from '@/components/BuyerHeader';
-//import Categories from '@/components/Categories';
+import Categories from '@/components/Categories';
 import BuyerProfile from '@/components/BuyerProfile';
-//import ProductDetailsDialog from '@/components/ProductDetailsDialog';
+import ProductDetailsDialog from '@/components/ProductDetailsDialog';
 import { 
+
   Heart, 
   Star,
   Loader2
+
 } from 'lucide-react';
-import Categories from './Categories';
-import ProductDetailsDialog from './ProductDetailsDialog';
 
 // Types
 interface Shop {
@@ -98,7 +98,16 @@ export default function BuyerDashboard({ user }: BuyerDashboardProps) {
 
       const data = await response.json();
       
-   
+      if (data.success) {
+        setProducts(data.products || []);
+        
+        // Extract unique categories from products
+        
+        const uniqueCategories = [...new Set(data.products.map((product: Product) => product.category))];
+        setCategories(uniqueCategories);
+      } else {
+        throw new Error(data.message || 'Failed to fetch products');
+      }
     } catch (err) {
       console.error('Error fetching products:', err);
       setError(err instanceof Error ? err.message : 'An error occurred while fetching products');
@@ -429,7 +438,7 @@ export default function BuyerDashboard({ user }: BuyerDashboardProps) {
           </div>
         )}
 
-        {/* No Products Available */}
+        { /* No Products Available */ }
         {!loading && !error && products.length === 0 && (
           <div className="text-center py-12">
             <div className="w-24 h-24 bg-secondary rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -446,8 +455,15 @@ export default function BuyerDashboard({ user }: BuyerDashboardProps) {
         )}
       </div>
 
-      {/* Product Details Dialog */}
-     
+      { /* Product Details Dialog */ }
+      <ProductDetailsDialog
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        productRating={productRatings[selectedProduct?.id || 0] || 0}
+        onRateProduct={handleRateProduct}
+        comments={productComments[selectedProduct?.id || 0] || []}
+        onAddComment={handleAddComment}
+      />
     </div>
   );
 }

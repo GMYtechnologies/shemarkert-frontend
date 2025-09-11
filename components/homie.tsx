@@ -1,15 +1,17 @@
-"use client";
-// import { ModeToggle } from "@/components/ui/theme-toggle";
-import Image from "next/image";
-import React from "react";
-import { Sparkles, Heart, Star, ShoppingBag } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import Homie from "@/components/homie";
+'use client';
+import { Sparkles, ShoppingBag, Heart, Star } from "lucide-react"
+import router, { useRouter } from "next/navigation"
+import { Button } from "./ui/button"
+import { Card } from "./ui/card"
+import Image from 'next/image';
+import { sign } from "crypto";
 
-export default function Home() {
-  const router = useRouter();
+export default function Homie(){
+     function signHandler(){
+        console.log('Clicked !');
+    }
+    
+         const router = useRouter();
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -30,7 +32,7 @@ export default function Home() {
                 Connect with exclusive women&apos;s fashion sellers and discover unique pieces that express your individuality.
               </p>
               <Button
-                onClick={() => router.push('/signup')}
+                onClick={signHandler}
                 size="lg"
                 className="bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-full"
               >
@@ -41,7 +43,7 @@ export default function Home() {
             </div>
             <div className="flex-1">
               <Image
-                src="/images/landinggirl2.jpg"
+                src="/images/landinggirl.jpeg"
                 alt="Fashion Collection"
                 width={500}
                 height={500}
@@ -165,6 +167,6 @@ export default function Home() {
           </p>
         </div>
       </footer>
-    </div>
-  );
+    </div> 
+    )
 }

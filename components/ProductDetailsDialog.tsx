@@ -47,7 +47,7 @@ interface Product {
 }
 
 interface ProductDetailsDialogProps {
-  product: Product | null;
+   product: Product | null;
   onClose: () => void;
   shopRatings: Record<number, number>;
   onRateShop: (shopId: number, rating: number) => void;

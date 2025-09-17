@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { JSX, useState } from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 
 interface Shop {
+  map(arg0: (shop: any) => JSX.Element): import("react").ReactNode;
   id: number;
   name: string;
   rating: number;
@@ -38,28 +39,46 @@ interface Product {
   category: string;
   price: number;
   image: string;
+  location: string;
+  contact: string;
   sizes: string[];
   colors: string[];
   description: string;
   rating: number;
   likes: number;
-  shops: Shop[];
+  shop: Shop;
 }
 
 interface ProductDetailsDialogProps {
   product: Product | null;
+  shop: Shop | null;
   onClose: () => void;
   shopRatings: Record<number, number>;
   onRateShop: (shopId: number, rating: number) => void;
 }
+interface Props {
+  shopRatings: Record<number, number>;
+}
 
 export default function ProductDetailsDialog({
   product,
+  shop,
   onClose,
-  shopRatings,
   onRateShop,
 }: ProductDetailsDialogProps) {
   const [activeTab, setActiveTab] = useState("details");
+  const [shopRatings, setShopRatings] = useState<Record<number, number>>({});
+
+const handleRateShop = (shopId: number, rating: number) => {
+  setShopRatings((prev) => ({
+    ...prev,
+    [shopId]: rating,
+  }));
+};
+  const [shopRating, setShopRating] = useState(() => {
+  const shopId = product?.shop?.id;
+  return shopId && shopRatings[shopId] !== undefined ? shopRatings[shopId] : 3;
+});
 
   if (!product) return null;
 
@@ -87,9 +106,9 @@ export default function ProductDetailsDialog({
                 <Info className="h-4 w-4" />
                 Details
               </TabsTrigger>
-              <TabsTrigger value="shops" className="flex items-center gap-2">
+              <TabsTrigger value="shop" className="flex items-center gap-2">
                 <Store className="h-4 w-4" />
-                Shops ({product.shops.length})
+                Shop Info
               </TabsTrigger>
               <TabsTrigger value="specs" className="flex items-center gap-2">
                 <ShoppingBag className="h-4 w-4" />
@@ -167,98 +186,158 @@ export default function ProductDetailsDialog({
 
                     <div className="pt-4">
                       <p className="text-sm text-muted-foreground mb-2">
-                        Available at {product.shops.length} shop
-                        {product.shops.length !== 1 ? "s" : ""}
-                      </p>
-                      <Button
+                        Available at {shop?.name} shop
+                        {shop ? "s": ""}
+                        </p>
+                        <Button
                         onClick={() => setActiveTab("shops")}
-                        className="w-full bg-garbata-gradient hover:opacity-90"
+                        className="w-full bg-garbata hover:opacity-90"
                       >
-                        View Shops & Contact
+                        View Shops
                       </Button>
                     </div>
                   </div>
                 </div>
               </TabsContent>
 
-              {/* --- SHOPS TAB --- */}
-              <TabsContent
-                value="shops"
-                className="h-full m-0 flex flex-col"
-              >
-                <div className="text-center mb-4 flex-shrink-0">
-                  <h3 className="text-lg mb-2">Available Shops</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Contact shops directly or rate your experience
-                  </p>
-                </div>
+              {/* --- SHOP TAB --- */}
+              <TabsContent value="shop" className="h-full m-0 flex flex-col">
+  <div className="text-center mb-4 flex-shrink-0">
+    <h3 className="text-lg mb-2">Shop Information</h3>
+    <p className="text-sm text-muted-foreground">
+      Contact shop directly or rate your experience
+    </p>
+  </div>
 
-                <div className="flex-1 overflow-y-auto scrollbar-hide">
-                  <div className="space-y-4 pr-1">
-                    {product.shops.map((shop) => (
-                      <Card key={shop.id} className="border-2">
-                        <CardContent className="p-4">
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="space-y-2">
-                              <h5 className="text-lg">{shop.name}</h5>
-                              <div className="flex items-center gap-1 text-sm">
-                                <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                                <span>{shop.rating}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="h-3 w-3" />
-                                <span>{shop.location}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Phone className="h-3 w-3" />
-                                <span>{shop.contact}</span>
-                              </div>
-                            </div>
-                            <Button size="sm" className="bg-garbata-gradient hover:opacity-90">
-                              Contact Shop
-                            </Button>
-                          </div>
+<div className="flex-1 overflow-y-auto scrollbar-hide">
+  <div className="space-y-4 pr-1">
+    {product.shop.map((shop) => (
+      <Card key={shop.id} className="border-2">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start mb-4">
+            <div className="space-y-2">
+              <h5 className="text-lg">{shop.name}</h5>
+              <div className="flex items-center gap-1 text-sm">
+                <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                <span>{shop.rating}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-3 w-3" />
+                <span>{shop.location}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="h-3 w-3" />
+                <span>{shop.contact}</span>
+              </div>
+            </div>
+            <Button size="sm" className="bg-garbata-gradient hover:opacity-90 ">
+              Contact Shop
+            </Button>
+          </div>
+          <Separator className="mb-3" />
+          <div className="flex items-center justify-between">
+            <span className="text-sm">Rate this shop:</span>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <button
+                    key={rating}
+                    onClick={() => onRateShop(shop.id, rating)}
+                    className="p-1 hover:scale-110 transition-transform"
+                    title={`Rate ${rating} star${rating !== 1 ? 's' : ''}`}
+                  
+                  >
+                    <Star
+                      className={`h-4 w-4 ${
+                        rating <= shopRating
+                          ? 'text-yellow-500 fill-yellow-500'
+                          : 'text-gray-300 hover:text-yellow-400'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              {shopRating > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {shopRating}★
+                </Badge>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
 
-                          <Separator className="mb-3" />
+  <div className="flex-1 overflow-y-auto scrollbar-hide">
+    <div className="space-y-4 pr-1">
+      <Card className="border-2">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start mb-4">
+            <div className="space-y-2">
+              <h5 className="text-lg">
+                {product.name}
+              </h5>
+              <div className="flex items-center gap-1 text-sm">
+                <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                <span>{product.rating}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-3 w-3" />
+                <span>{product.location}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="h-3 w-3" />
+                <span>{shop?.contact}</span>
+              </div>
+            </div>
+            <Button size="sm" className="bg-garbata-gradient hover:opacity-90 transition-opacity">
+              Contact Shop
+            </Button>
+          </div>
 
-                          {/* Compact Rating Section */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">Rate this shop:</span>
-                            <div className="flex items-center gap-2">
-                              <div className="flex gap-1">
-                                {[1, 2, 3, 4, 5].map((rating) => (
-                                  <button
-                                    key={rating}
-                                    onClick={() => onRateShop(shop.id, rating)}
-                                    className="p-1 hover:scale-110 transition-transform"
-                                    title={`Rate ${rating} star${rating !== 1 ? "s" : ""}`}
-                                  >
-                                    <Star
-                                      className={`h-4 w-4 ${
-                                        rating <= (shopRatings[shop.id] || 0)
-                                          ? "text-yellow-500 fill-yellow-500"
-                                          : "text-gray-300 hover:text-yellow-400"
-                                      }`}
-                                    />
-                                  </button>
-                                ))}
-                              </div>
-                              {shopRatings[shop.id] && (
-                                <Badge variant="secondary" className="text-xs">
-                                  {shopRatings[shop.id]}★
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+          <Separator className="mb-3" />
 
-                    {/* Padding for scroll */}
-                    <div className="h-4"></div>
-                  </div>
-                </div>
-              </TabsContent>
+          {/* Shop Rating Section */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm">Rate this shop:</span>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <button
+                    key={rating}
+                    onClick={() => onRateShop(product.shop.id, rating)}
+                    className="p-1 hover:scale-110 transition-transform"
+                    title={`Rate ${rating} star${rating !== 1 ? 's' : ''}`}
+                    aria-label={`Rate ${rating} star${rating !== 1 ? 's' : ''}`}
+                  >
+                    <Star
+                      className={`h-4 w-4 ${
+                        rating <= shopRating
+                          ? 'text-yellow-500 fill-yellow-500'
+                          : 'text-gray-300 hover:text-yellow-400'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              {shopRating > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {shopRating}★
+                </Badge>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bottom padding for scroll comfort */}
+      <div className="h-4"></div>
+    </div>
+  </div>
+  </div>
+</TabsContent>
+
 
               {/* --- SPECS TAB --- */}
               <TabsContent

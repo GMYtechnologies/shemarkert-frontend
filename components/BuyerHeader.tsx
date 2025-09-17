@@ -70,20 +70,14 @@ export default function BuyerHeader({
               </Button>
             )}
 
-            {currentPage !== "profile" && onProfileClick && (
+            {currentPage !== "profile" &&  (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onProfileClick}
+                onClick={() =>router.push("/BuyerProfile.tsx")}
                 className="flex items-center gap-2"
               >
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src="https://images.unsplash.com/photo-1494790108755-2616b332c6db?w=150&h=150&fit=crop&crop=face" />
-                  <AvatarFallback>
-                    <User className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden sm:inline">Profile</span>
+                Profile
               </Button>
             )}
 

@@ -6,6 +6,7 @@ import { Sparkles, Heart, Star, ShoppingBag } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import Homie from "@/components/homie";
 
 export default function Home() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function Home() {
                 Connect with exclusive women&apos;s fashion sellers and discover unique pieces that express your individuality.
               </p>
               <Button
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/signup')}
                 size="lg"
                 className="bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-full"
               >
@@ -40,7 +41,7 @@ export default function Home() {
             </div>
             <div className="flex-1">
               <Image
-                src="/images/landinggirl.jpeg"
+                src="/images/landinggirl2.jpg"
                 alt="Fashion Collection"
                 width={500}
                 height={500}
@@ -146,7 +147,7 @@ export default function Home() {
             Join thousands of women who are already discovering amazing fashion finds and building their perfect wardrobe.
           </p>
           <Button
-            onClick={() => router.push('/login')}
+            onClick={() => router.push('/signup')}
             size="lg"
             className="bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-full"
           >

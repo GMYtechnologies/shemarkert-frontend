@@ -6,8 +6,8 @@ import { Sparkles, Heart, Star, ShoppingBag } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import Homie from "@/components/homie";
-
+// import "./globals.css";
+import ThemeToggle from "@/components/ThemeToggle";
 export default function Home() {
   const router = useRouter();
   return (
@@ -18,6 +18,7 @@ export default function Home() {
         <div className="relative container mx-auto px-6 py-20">
           {/* Theme Toggle in top right */}
           <div className="absolute top-6 right-6">
+            
           </div>
           
           <div className="flex flex-col lg:flex-row items-center gap-12">

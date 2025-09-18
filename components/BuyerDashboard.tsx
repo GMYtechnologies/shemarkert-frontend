@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+// import "./globals.css";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { ModeToggle } from '@/components/sellers';
 import BuyerHeader from '@/components/BuyerHeader';
 import Categories from '@/components/Categories';
 import BuyerProfile from '@/components/BuyerProfile';
@@ -301,6 +303,7 @@ export default function BuyerDashboard({ user }: BuyerDashboardProps) {
       />
 
       <div className="container mx-auto px-6">
+         <ModeToggle />
         {/* Dynamic Categories */}
         <Categories 
           selectedCategory={selectedCategory}

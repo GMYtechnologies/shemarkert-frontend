@@ -4,8 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ModeToggle } from '../sellers/page';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+// import './globals.css'
+ 
 
 export default function LoginPage() {
   const router = useRouter();
@@ -101,6 +104,6 @@ export default function LoginPage() {
       </Card>
     </div>
   );
+  
 };
 
-export default function Page() { return <AuthPage />; }

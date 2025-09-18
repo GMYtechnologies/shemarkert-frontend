@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+// import "./globals.css";
 import { Button } from "@/components/ui/button";
 import {
   Card,

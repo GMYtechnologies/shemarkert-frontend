@@ -188,7 +188,7 @@ export default function ProductDetailsDialog({
 
               {/* --- SHOPS TAB --- */}
               <TabsContent
-                value="shops"
+                value="shop"
                 className="h-full m-0 flex flex-col"
               >
                 <div className="text-center mb-4 flex-shrink-0">

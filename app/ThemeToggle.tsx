@@ -1,39 +1,22 @@
-import { Button } from '@/components/ui/button';
-import { Sun, Moon } from 'lucide-react';
-import { useTheme } from '@/components/ThemeProvider';
+"use client";
 
-interface ThemeToggleProps {
-  variant?: 'default' | 'ghost' | 'outline';
-  size?: 'sm' | 'default' | 'lg';
-}
+import { useState } from "react";
+import { useTheme } from "next-themes";
+import { Sun, Moon, Store } from "lucide-react";
 
-export default function ThemeToggle({ variant = 'outline', size = 'default' }: ThemeToggleProps) {
-  const { theme, toggleTheme } = useTheme();
+export function ModeToggle() {
+    const { theme, setTheme } = useTheme();
+
+  const handleToggle = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   return (
-    <Button
-      variant={variant}
-      size={size}
-      onClick={toggleTheme}
-      className="flex items-center gap-2"
-      title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+    <button
+      onClick={handleToggle}
+      className="px-4 py-2 rounded-2xl bg-gray-700 hover:bg-gray-600 transition"
     >
-      {theme === 'light' ? (
-        <>
-          <Moon className="h-4 w-4" />
-          <span className="sr-only">Switch to dark mode</span>
-        </>
-      ) : (
-        <>
-          <Sun className="h-4 w-4" />
-          <span className="sr-only">Switch to light mode</span>
-        </>
-      )}
-      {size !== 'sm' && (
-        <span className="hidden sm:inline">
-          {theme === 'light' ? 'Dark' : 'Light'}
-        </span>
-      )}
-    </Button>
+       {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+    </button>
   );
 }

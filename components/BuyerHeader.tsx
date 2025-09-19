@@ -2,13 +2,13 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+// import "./globals.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 //import ThemeToggle from "@/components/ThemeToggle";
 import { Search, User, ShoppingBag } from "lucide-react";
-import ThemeToggle from "@/app/ThemeToggle";
-
+import { ModeToggle } from "@/app/ThemeToggle";
 interface BuyerHeaderProps {
   user: any;
   searchQuery?: string;

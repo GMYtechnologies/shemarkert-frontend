@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -41,10 +41,17 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --color-garbata-pink: var(--garbata-pink);
+  --color-garbata-purple: var(--garbata-purple);
+  --color-garbata-rose: var(--garbata-rose);
+  --color-garbata-lavender: var(--garbata-lavender);
+  --color-garbata-cream: var(--garbata-cream);
 }
 
 :root {
   --font-size: 14px;
+  --radius: 0.75rem; /* 12px */
   --background: #fef7f7;
   --foreground: #2d1b36;
   --card: #ffffff;
@@ -62,7 +69,7 @@
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --border: rgba(212, 70, 239, 0.2);
-  --input: transparent;
+  --input: #ffffff;
   --input-background: #ffffff;
   --switch-background: #e5e7eb;
   --font-weight-medium: 500;
@@ -73,7 +80,6 @@
   --chart-3: #f59e0b;
   --chart-4: #8b5cf6;
   --chart-5: #06b6d4;
-  --radius: 0.75rem;
   --sidebar: #fef7f7;
   --sidebar-foreground: #2d1b36;
   --sidebar-primary: #d946ef;
@@ -89,39 +95,6 @@
   --garbata-rose: #f43f5e;
   --garbata-lavender: #e879f9;
   --garbata-cream: #fef3c7;
-
-  --radius: 0.625rem;
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
 }
 
 .dark {
@@ -154,65 +127,17 @@
   --sidebar-ring: #d946ef;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-input-background: var(--input-background);
-  --color-switch-background: var(--switch-background);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-
-  --color-garbata-pink: var(--garbata-pink);
-  --color-garbata-purple: var(--garbata-purple);
-  --color-garbata-rose: var(--garbata-rose);
-  --color-garbata-lavender: var(--garbata-lavender);
-  --color-garbata-cream: var(--garbata-cream);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
-/**
- * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
- */
+/* Base Typography */
 @layer base {
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
     h1 {
@@ -239,24 +164,9 @@
       line-height: 1.5;
     }
 
-    p {
-      font-size: var(--text-base);
-      font-weight: var(--font-weight-normal);
-      line-height: 1.5;
-    }
-
-    label {
-      font-size: var(--text-base);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
-
-    button {
-      font-size: var(--text-base);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
-
+    p,
+    label,
+    button,
     input {
       font-size: var(--text-base);
       font-weight: var(--font-weight-normal);
@@ -269,7 +179,7 @@ html {
   font-size: var(--font-size);
 }
 
-/* Custom Garbata utilities */
+/* Custom Garbata Utilities */
 .bg-garbata-gradient {
   background: linear-gradient(135deg, var(--garbata-pink), var(--garbata-purple));
 }
@@ -281,17 +191,15 @@ html {
   background-clip: text;
 }
 
-/* Hide scrollbar utility */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
+  display: none;
 }
 
-/* Line clamp utilities */
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
@@ -300,17 +208,34 @@ html {
   line-clamp: 2;
 }
 
+/* Card Styling with Gradient */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
 
-/* ===========================
-   Subscription page global styles
-   (container, grid, providers, modal, responsive)
-   =========================== */
+.card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
 
-/* Container (matches original max-w-6xl mx-auto p-6) */
+/* Button Gradient */
+.btn-gradient {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Subscription Page Styles */
 .container {
   max-width: 1120px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   padding: 24px;
 }
 
@@ -393,3 +318,11 @@ html {
   .plans-grid { grid-template-columns: 1fr; }
   .provider-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+@media (max-width: 880px) {
+  .grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Add other subscription styles here... */

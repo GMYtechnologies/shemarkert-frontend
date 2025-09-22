@@ -1,0 +1,119 @@
+/* subscription-custom.css
+
+Usage:
+1. Put this file in the same folder as your component (or in your global styles folder).
+2. Import it at the top of your React file: import './subscription-custom.css';
+3. Update your `plans` objects so their `color` strings become exactly:
+   - Premium: "plan-card plan-card--premium"
+   - VIP: "plan-card plan-card--vip"
+   (You can leave Free as-is or use "plan-card plan-card--free" for a neutral look.)
+
+This stylesheet will style the Card elements, icon colors, badges, hover states and the active ring.
+
+--------------------------------------------------------------------- */
+
+:root{
+  --premium-from: #e6f7ff;
+  --premium-to:   #dff6ff;
+  --premium-border: #60a5fa; /* blue-400 */
+  --premium-accent: #0369a1; /* blue-700 */
+
+  --vip-from: #fff8e6;
+  --vip-to:   #fff1cc;
+  --vip-border: #f59e0b; /* yellow-500 */
+  --vip-accent: #b45309; /* orange-700 / amber-ish */
+
+  --card-radius: 0.5rem;
+  --card-shadow: 0 8px 20px rgba(15,23,42,0.08);
+}
+
+/* Base plan card: keeps spacing and transition consistent */
+.plan-card {
+  border-radius: var(--card-radius);
+  border: 1px solid rgba(0,0,0,0.06);
+  transition: box-shadow 180ms ease, transform 120ms ease, border-color 180ms ease;
+  overflow: visible; /* allow badges to sit outside */
+}
+
+.plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow);
+}
+
+/* Premium look (blue) */
+.plan-card--premium {
+  background: linear-gradient(90deg, var(--premium-from) 0%, var(--premium-to) 100%);
+  border-color: var(--premium-border);
+}
+
+/* VIP look (yellowish / gold) */
+.plan-card--vip {
+  background: linear-gradient(90deg, var(--vip-from) 0%, var(--vip-to) 100%);
+  border-color: var(--vip-border);
+}
+
+/* Optional neutral Free card class */
+.plan-card--free {
+  background: transparent;
+  border-color: rgba(0,0,0,0.06);
+}
+
+/* Icon coloring: lucide-react icons use currentColor for stroke/fill, so setting color works */
+.plan-card--premium svg,
+.plan-card--premium svg * {
+  color: var(--premium-accent) !important;
+}
+
+.plan-card--vip svg,
+.plan-card--vip svg * {
+  color: var(--vip-accent) !important;
+}
+
+/* Badge styles inside a plan card */
+.plan-card .badge {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.66rem;
+  border-radius: 999px;
+}
+
+.plan-card--premium .badge {
+  background-color: var(--premium-accent) !important;
+  color: white !important;
+}
+
+.plan-card--vip .badge {
+  background-color: var(--vip-accent) !important;
+  color: white !important;
+}
+
+/* Active plan (if you prefer to mark active with a class) */
+.plan-card.active {
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.12), 0 12px 30px rgba(15,23,42,0.08);
+  transform: none;
+}
+
+/* If your code adds ring-2 ring-green-500, the outline may clash; hide it when using .active */
+.plan-card.ring-2.ring-green-500 {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.12);
+}
+
+/* Make the feature check icons stand out - keep them green as before */
+.plan-card .feature-check svg,
+.plan-card .feature-check svg * {
+  color: #059669 !important; /* green-600 */
+}
+
+/* Small helpers for card header spacing (if needed) */
+.plan-card .card-header-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Responsive tweaks */
+@media (prefers-reduced-motion: reduce) {
+  .plan-card { transition: none; }
+}
+
+/* End of file */

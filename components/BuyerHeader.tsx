@@ -74,16 +74,10 @@ export default function BuyerHeader({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() =>router.push("/BuyerProfile.tsx")}
+                onClick={() =>router.push("/profile")}
                 className="flex items-center gap-2"
               >
                 Profile
-              </Button>
-            )}
-
-            {currentPage !== "dashboard" && (
-              <Button onClick={() => router.push("/buyer-dashboard")} variant="ghost" size="sm">
-                Dashboard
               </Button>
             )}
 

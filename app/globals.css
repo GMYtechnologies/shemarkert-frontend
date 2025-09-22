@@ -315,10 +315,10 @@ html {
 }
 
 /* Header */
-.sm-header { background: var(--card); border-bottom: 1px solid #eee; }
+.sm-header { background: var(--card); border-bottom: 1px solid #ec0f0f; }
 .sm-header-inner { display:flex; align-items:center; justify-content:center; gap:12px; padding: 16px 0; }
 .brand { display:flex; align-items:center; gap:12px; }
-.logo { width:44px; height:44px; border-radius:999px; background: linear-gradient(90deg,var(--primary),var(--secondary)); color:#fff; display:flex; align-items:center; justify-content:center; }
+.logo { width:44px; height:44px; border-radius:999px; background: linear-gradient(90deg,var(--primary),var(--secondary)); color:#0cdf17; display:flex; align-items:center; justify-content:center; }
 
 /* Trial banner */
 .trial-card { margin: 20px 0; background: linear-gradient(90deg,var(--primary),var(--secondary)); color: #fff; border-radius:12px; box-shadow: 0 8px 24px rgba(124,58,237,0.12); }
@@ -327,8 +327,8 @@ html {
 /* Grid layout */
 .grid-layout { display:grid; grid-template-columns: 1fr 360px; gap:24px; margin-top:18px; }
 .plans-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:16px; }
-.plan-card { background: var(--card); border:1px solid #eee; border-radius:10px; padding:12px; cursor:pointer; position:relative; }
-.plan-card.active { border-color: var(--primary); box-shadow: 0 12px 30px rgba(124,58,237,0.08); }
+.plan-card { background: var(--card); border:1px solid #f71717; border-radius:10px; padding:12px; cursor:pointer; position:relative; }
+.plan-card.active { border-color: var(--primary); box-shadow: 0 12px 30px rgba(24, 224, 6, 0.08); }
 .badge-popular { position: absolute; top:-8px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg,var(--primary),var(--secondary)); color:white; padding:4px 8px; border-radius:999px; font-size:12px; }
 .badge-save { position:absolute; top:8px; right:8px; background:#f3f4f6; padding:4px 6px; border-radius:6px; font-size:12px; }
 
@@ -337,17 +337,17 @@ html {
 .feature-row { display:flex; gap:8px; align-items:center; }
 
 /* Order / payment column */
-.order-card { border-radius:10px; background: var(--card); border:1px solid #eee; padding:0; }
+.order-card { border-radius:10px; background: var(--card); border:1px solid #3b54e2; padding:0; }
 .order-card .total { font-weight:700; color: var(--primary); font-size:18px; }
 .start-cta { display:block; margin-top:12px; width:100%; padding:12px; border-radius:10px; background: linear-gradient(90deg,var(--primary),var(--secondary)); color:white; border:0; cursor:pointer; }
 
 /* Payment methods */
 .method-list { display:flex; gap:8px; margin-top:8px; }
 .method-item { display:flex; gap:8px; align-items:center; padding:10px; border-radius:8px; border:1px solid #e6e6ef; cursor:pointer; flex:1; background: var(--card); }
-.method-item.selected { border-color: var(--primary); background: rgba(124,58,237,0.06); }
+.method-item.selected { border-color: var(--primary); background: rgba(105, 24, 245, 0.06); }
 
 /* Card form */
-.card-form input, .split input { width:100%; padding:10px; border-radius:8px; border:1px solid #e6e6ef; margin-bottom:8px; background: var(--input-background); color: var(--card-foreground); }
+.card-form input, .split input { width:100%; padding:10px; border-radius:8px; border:1px solid #0404f7; margin-bottom:8px; background: var(--input-background); color: var(--card-foreground); }
 .split { display:flex; gap:8px; }
 .split input { flex:1; }
 
@@ -370,7 +370,7 @@ html {
 
 /* Mobile row inside modal */
 .mobile-row { display:flex; gap:8px; align-items:center; margin-top:8px; }
-.mobile-row input { flex:1; padding:10px; border-radius:8px; border:1px solid #e6e6ef; }
+.mobile-row input { flex:1; padding:10px; border-radius:8px; border:1px solid #5151f0; }
 .lipa-button { padding:10px 12px; border-radius:8px; background:#0ea5a4; color:white; border:0; cursor:pointer; }
 
 /* Maelekezo / instructions */

@@ -103,4 +103,3 @@ export default function LoginPage() {
   );
 };
 
-export default function Page() { return <AuthPage />; }

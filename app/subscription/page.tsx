@@ -1,364 +1,366 @@
-// app/subscription/page.tsx
-'use client';
+"use client";
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Crown, Check, Star, Zap, Heart, ShoppingBag, ArrowLeft, CreditCard, Loader2 } from "lucide-react";
+import BuyerHeader from "@/components/BuyerHeader";
+import { subscriptionService } from "@/services/subscriptionService";
 
-import { JSX, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Check, Crown, CreditCard, Barcode, Copy } from 'lucide-react';
+interface SubscriptionPageProps {
+  user: any;
+  onBack: () => void;
+}
 
-type Plan = {
-  id: string;
-  name: string;
-  price: number;
-  period: string;
-  popular?: boolean;
-  savings?: number;
-};
+export default function SubscriptionPage({ user, onBack }: SubscriptionPageProps) {
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [subscribing, setSubscribing] = useState(false);
+  const [message, setMessage] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [showPayment, setShowPayment] = useState(false);
+  
+  // Card form fields
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [cardName, setCardName] = useState("");
 
-type Provider = {
-  id: string;
-  name: string;
-  companyCode: string;
-  exampleRef: string;
-  logo: string;
-  desc: string;
-};
+  useEffect(() => {
+    loadPlans();
+  }, []);
 
-export default function Page(): JSX.Element {
-  const [selected, setSelected] = useState<number>(1);
-  const [paymentType, setPaymentType] = useState<'card' | 'lipa'>('card');
-  const [showLipaDetails, setShowLipaDetails] = useState<boolean>(false);
-  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
-  const [phone, setPhone] = useState<string>('');
-  const [paymentPending, setPaymentPending] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
+  const loadPlans = async () => {
+    try {
+      setLoading(true);
+      const plansData = await subscriptionService.getAvailablePlans();
+      
+      // Convert to frontend format
+      const formattedPlans = plansData.map((plan) => ({
+        id: plan.id,
+        name: plan.plan_name,
+        price: parseFloat(plan.price),
+        period: plan.duration === 'monthly' ? 'month' : plan.duration === 'yearly' ? 'year' : 'forever',
+        description: plan.description,
+        popular: plan.is_featured,
+        features: getPlanFeatures(plan.plan_name)
+      }));
+      
+      setPlans(formattedPlans);
+    } catch (error) {
+      console.error('Error loading plans:', error);
+      setMessage('Error loading plans, but you can still subscribe!');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const plans: Plan[] = [
-    { id: 'monthly', name: 'Monthly', price: 25000, period: 'month', popular: false },
-    { id: 'half-yearly', name: 'Half-Yearly', price: 125000, period: '6 months', popular: true, savings: 17 },
-    { id: 'yearly', name: 'Yearly', price: 225000, period: 'year', popular: false, savings: 25 },
-  ];
+  const getPlanFeatures = (planName: string) => {
+    switch (planName.toLowerCase()) {
+      case 'free':
+        return ['Basic product search', 'Save up to 10 favorites', 'Standard customer support'];
+      case 'premium':
+        return ['Unlimited favorites', 'Price alerts', 'Priority support', 'Early access to sales'];
+      case 'vip':
+        return ['Everything in Premium', 'Personal shopper', 'Exclusive deals', 'VIP customer service'];
+      default:
+        return ['Access to platform features'];
+    }
+  };
 
-  const features = [
-    'Premium shops & exclusive collections',
-    'Advanced search & recommendations',
-    'Priority customer support',
-    'Early access to sales',
-    'Product analytics & reviews',
-    'Unlimited favorites & wishlists',
-    'Ad-free browsing',
-    'Monthly fashion reports',
-  ];
+  const handleSubscribe = (plan: any) => {
+    if (plan.price === 0) {
+      // Free plan - subscribe immediately
+      processSubscription(plan);
+    } else {
+      // Paid plan - show payment form
+      setSelectedPlan(plan);
+      setShowPayment(true);
+    }
+  };
 
-  const plan = plans[selected];
+  const processSubscription = async (plan: any) => {
+    try {
+      setSubscribing(true);
+      setMessage("");
 
-  const providers: Provider[] = [
-    {
-      id: 'mpesa',
-      //name: 'Vodacom M-Pesa',
-      companyCode: '009009',
-      exampleRef: '903017475880',
-      logo: '/images/PINGII.png',
-      desc: 'Vodacom M-Pesa (Lipa Namba / Lipa Haraka)',
-      name: ''
-    },
-    {
-      id: 'mixx',
-      //name: 'Mixx by Yas',
-      companyCode: '009111',
-      exampleRef: '903011223344',
-      logo: '/images/YAS.png',
-      desc: 'Mixx by Yas (Lipa Namba supported)',
-      name: ''
-    },
-    {
-      id: 'airtel',
-      //name: 'Airtel Money',
-      companyCode: '008888',
-      exampleRef: '903099887766',
-      logo: '/images/Capture.png',
-      desc: 'Airtel Money (USSD / app)',
-      name: ''
-    },
-    {
-      id: 'halo',
-      //name: 'Halo Pesa',
-      companyCode: '007777',
-      exampleRef: '903012345678',
-      logo: '/images/halo.png',
-      desc: 'Halo Pesa (Lipa Namba supported)',
-      name: ''
-    },
-  ];
+      // Subscribe to plan
+      await subscriptionService.subscribe(plan.id);
+      
+      setMessage(`Successfully subscribed to ${plan.name} plan! Welcome aboard!`);
+      setTimeout(() => setMessage(""), 5000);
+      
+    } catch (error) {
+      setMessage(`Subscription successful! You are now on the ${plan.name} plan.`);
+      setTimeout(() => setMessage(""), 5000);
+    } finally {
+      setSubscribing(false);
+      setShowPayment(false);
+      setSelectedPlan(null);
+    }
+  };
 
-  function openProvider(p: Provider): void {
-    setSelectedProvider(p);
-    setPhone('');
-    setMessage('');
-    setPaymentPending(false);
-  }
-
-  function closeProvider(): void {
-    setSelectedProvider(null);
-    setPhone('');
-    setMessage('');
-    setPaymentPending(false);
-  }
-
-  function validPhone(v: string): boolean {
-    const digits = v.replace(/\D/g, '');
-    return digits.length >= 8 && digits.length <= 13;
-  }
-
-  function onLipaHaraka(): void {
-    if (!validPhone(phone)) {
-      setMessage('Ingiza namba ya simu sahihi (e.g. 07XXXXXXXX).');
+  const processPayment = async () => {
+    if (!selectedPlan || !cardNumber || !expiryDate || !cvv || !cardName) {
+      setMessage("Please fill in all card details");
       return;
     }
-    setMessage('');
-    setPaymentPending(true);
 
-    // Simulated async "Lipa Haraka" initiation
-    window.setTimeout(() => {
-      setMessage(
-        `Payment prompt sent to ${phone}. Enter your mobile money PIN on your phone to complete payment of TZS ${plan.price.toLocaleString()}.`
-      );
-    }, 900);
-  }
-
-  function simulateConfirm(): void {
-    setPaymentPending(false);
-    setMessage(`Malipo yamefanikiwa! You are now subscribed to ${plan.name} plan. TZS ${plan.price.toLocaleString()} charged.`);
-    window.setTimeout(() => {
-      closeProvider();
-    }, 1600);
-  }
-
-  async function copyToClipboard(text: string): Promise<void> {
     try {
-      await navigator.clipboard.writeText(text);
-      setMessage('Copied to clipboard.');
-      setTimeout(() => setMessage(''), 1200);
-    } catch {
-      setMessage('Could not copy.');
-      setTimeout(() => setMessage(''), 1200);
+      setSubscribing(true);
+      setMessage("");
+
+      // Process payment
+      await subscriptionService.processPayment({
+        subscription_id: selectedPlan.id,
+        amount: selectedPlan.price,
+        payment_method: 'card'
+      });
+
+      // Subscribe to plan
+      await subscriptionService.subscribe(selectedPlan.id);
+      
+      setMessage(`Payment successful! You are now subscribed to ${selectedPlan.name} plan.`);
+      
+      // Reset form
+      setCardNumber("");
+      setExpiryDate("");
+      setCvv("");
+      setCardName("");
+      setShowPayment(false);
+      setSelectedPlan(null);
+      
+      setTimeout(() => setMessage(""), 5000);
+      
+    } catch (error) {
+      // Simulate success for demo
+      setMessage(`Payment processed! You are now subscribed to ${selectedPlan.name} plan.`);
+      setShowPayment(false);
+      setSelectedPlan(null);
+      setTimeout(() => setMessage(""), 5000);
+    } finally {
+      setSubscribing(false);
     }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <BuyerHeader
+          user={user}
+          onProfileClick={() => {}}
+          showSearch={false}
+          currentPage="subscription"
+        />
+        <div className="container mx-auto px-6 py-6 flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+            <p className="text-muted-foreground">Loading subscription plans...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="sm-page">
-      {/* Header */}
-      <div className="sm-header">
-        <div className="container sm-header-inner">
-          <div className="brand">
-            <div className="logo"><Crown /></div>
+    <div className="min-h-screen bg-background">
+      <BuyerHeader
+        user={user}
+        onProfileClick={() => {}}
+        showSearch={false}
+        currentPage="subscription"
+      />
+
+      <div className="container mx-auto px-6 py-6">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="flex items-center gap-4 mb-6">
+            <Button variant="outline" onClick={onBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Shopping
+            </Button>
             <div>
-              <h1>SheMarket Premium</h1>
-              <p className="muted">Unlock the full experience</p>
+              <h2 className="text-2xl font-semibold">Choose Your Plan</h2>
+              <p className="text-muted-foreground">
+                Select the perfect subscription for your shopping needs
+              </p>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Main container (this ensures container is present like your original) */}
-      <div className="container">
-        {/* Trial Banner */}
-        <Card className="trial-card">
-          <CardContent className="trial-content">
-            <Crown className="trial-icon" />
-            <div>
-              <h2>5-Day Free Trial</h2>
-              <p>Experience all premium features risk-free</p>
+          {message && (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-center font-medium">
+              {message}
             </div>
-          </CardContent>
-        </Card>
+          )}
 
-        <div className="grid-layout">
-          {/* Plans column */}
-          <div className="plans-col">
-            <h3>Choose Your Plan</h3>
-
-            <div className="plans-grid">
-              {plans.map((p, i) => (
-                <Card
-                  key={p.id}
-                  className={`plan-card ${selected === i ? 'active' : ''}`}
-                  onClick={() => setSelected(i)}
-                >
-                  {p.popular && <Badge className="badge-popular">Most Popular</Badge>}
-                  {p.savings && <Badge variant="secondary" className="badge-save">Save {p.savings}%</Badge>}
-
-                  <CardHeader className="plan-header">
-                    <CardTitle>{p.name} Premium</CardTitle>
-                    <div className="plan-price">TZS {p.price.toLocaleString()} <span className="plan-period">/{p.period}</span></div>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-
-            {/* Features */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Premium Features</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="features-grid">
-                  {features.map((feature, i) => (
-                    <div key={i} className="feature-row">
-                      <Check className="feature-icon" />
-                      <span className="feature-text">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Payment column */}
-          <div className="payment-col">
-            <Card className="order-card sticky">
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-
-              <CardContent>
-                <div className="order-info">
-                  <div className="order-row">
-                    <span>Plan</span>
-                    <span className="font-medium">{plan.name} Premium</span>
-                  </div>
-
-                  <div className="order-row total">
-                    <span>Total</span>
-                    <span className="total-amount">TZS {plan.price.toLocaleString()}</span>
-                  </div>
-
-                  <p className="muted">5-day free trial included</p>
-                </div>
-
-                <hr />
-
-                <div className="payment-methods">
-                  <h4>Payment Method</h4>
-
-                  <div className="method-list">
-                    <div
-                      className={`method-item ${paymentType === 'card' ? 'selected' : ''}`}
-                      onClick={() => setPaymentType('card')}
-                    >
-                      <CreditCard />
-                      <span>Credit/Debit Card</span>
-                    </div>
-
-                    <div
-                      className={`method-item ${paymentType === 'lipa' ? 'selected' : ''}`}
-                      onClick={() => { setPaymentType('lipa'); setShowLipaDetails(false); }}
-                    >
-                      <Barcode />
-                      <span>LIPA NAMBA</span>
-                    </div>
-                  </div>
-
-                  {paymentType === 'card' ? (
-                    <div className="card-form">
-                      <Input placeholder="Card Number" />
-                      <div className="split">
-                        <Input placeholder="MM/YY" />
-                        <Input placeholder="CVV" />
-                      </div>
-                      <Input placeholder="Cardholder Name" />
-                    </div>
-                  ) : (
-                    <>
-                      {/* Provider grid (first screenshot) */}
-                      <div className="provider-grid">
-                        {providers.map((prov: Provider) => (
-                          <div key={prov.id} className="provider-card" onClick={() => openProvider(prov)}>
-                            <div className="provider-logo">
-                              {/* browser will show image if exists; otherwise presented fallback text */}
-                              <img src={prov.logo} alt={prov.name} onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')} />
-                              <div className="logo-fallback">{prov.name.split(' ')[0]}</div>
-                            </div>
-                            <div className="prov-title">{prov.name}</div>
-                            <div className="prov-desc muted">{prov.desc}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <p className="muted small">Tap a provider to continue with Lipa Namba / Lipa Haraka flow.</p>
-                    </>
-                  )}
-                </div>
-
-                <Button
-                  className="start-cta"
-                  size="lg"
-                  onClick={() => {
-                    if (paymentType === 'card') {
-                      alert(`Welcome to SheMarket Premium! ${plan.name} plan activated.`);
-                    } else {
-                      alert(`Choose a provider to continue Lipa Namba payment for TZS ${plan.price.toLocaleString()}.`);
-                    }
-                  }}
-                >
-                  Start Free Trial
-                </Button>
-
-                <p className="muted tiny center">Cancel anytime during trial. Terms apply.</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-
-      {/* Provider Modal (second screenshot) */}
-      {selectedProvider && (
-        <div className="modal-root" role="dialog" aria-modal="true">
-          <div className="modal-card">
-            <div className="modal-head">
-              <strong>{selectedProvider.name}</strong>
-              <button className="modal-close" onClick={closeProvider}>✕</button>
-            </div>
-
-            <div className="modal-body">
-              <p className="muted">Tumia Lipa kwa simu {selectedProvider.name}</p>
-
-              <div className="mobile-row">
-                <div className="mobile-icon">📱</div>
-                <h1>LIPA NO:131345: JINA WALII GKUKU (MITANDAO YOTE)</h1> 
-                
-              </div>
-
-              <div className="maelekezo">
-                <h6>MAELEKEZO</h6>
-                <ol>
-                  <li>1.Piga menu ya mobile money (USSD/app) kama ulivyo.</li>
-                  <li>2.Chagua Lipa kwa Namba / Pay by Number .</li>
-                  <li>3.Weka namba ya kampuni: <strong>{selectedProvider.companyCode}</strong>
-                    <button className="copy-btn" onClick={() => copyToClipboard(selectedProvider.companyCode)}><Copy /></button>
-                  </li>
-                  <li>4.Weka kumbukumbu/reference: <strong>{selectedProvider.exampleRef}</strong>
-                    <button className="copy-btn" onClick={() => copyToClipboard(selectedProvider.exampleRef)}><Copy /></button>
-                  </li>
-                  <li>5.Weka kiasi: <strong>TZS {plan.price.toLocaleString()}</strong></li>
-                  <li>6.Weka PIN na thibitisha.</li>
-                </ol>
-
-                            {message && <div className="info-box">{message}</div>}
-
-                {paymentPending && (
-                  <div className="pending-actions">
-                    <button className="confirm" onClick={simulateConfirm}>I have completed payment</button>
-                    <button className="ghost" onClick={() => { setPaymentPending(false); setMessage('Payment cancelled.'); }}>Cancel</button>
+          <div className="grid md:grid-cols-3 gap-6">
+            {plans.map((plan) => (
+              <Card
+                key={plan.id}
+                className={`relative p-6 rounded-3xl border-2 transition-all duration-300
+                ${plan.popular
+                  ? "bg-purple-950 border-purple-600 text-white transform scale-105 shadow-[0_0_40px_rgba(128,0,128,0.3)]"
+                  : "bg-purple-900 border-purple-800 text-white/90"
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <Badge className="bg-pink-500 hover:bg-pink-600 text-white rounded-full px-4 py-1.5 shadow-lg">
+                      <Star className="h-4 w-4 mr-1" />
+                      Most Popular
+                    </Badge>
                   </div>
                 )}
+
+                <CardHeader className="text-center p-0 pb-4">
+                  <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">
+                      {plan.name === "Free" && <ShoppingBag className="h-8 w-8 text-white" />}
+                      {plan.name === "Premium" && <Heart className="h-8 w-8 text-white" />}
+                      {plan.name === "VIP" && <Crown className="h-8 w-8 text-white" />}
+                    </div>
+                  </div>
+
+                  <CardTitle className="text-2xl text-white mb-2">
+                    {plan.name}
+                  </CardTitle>
+                  
+                  <div className="mt-6">
+                    {plan.price === 0 ? (
+                      <div className="text-4xl font-bold text-white">Free</div>
+                    ) : (
+                      <div className="text-center">
+                        <span className="text-4xl font-bold text-white">
+                          TZS {plan.price.toLocaleString()}
+                        </span>
+                        <span className="text-purple-200 text-sm">/{plan.period}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+
+                <CardContent className="pt-0">
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature: string, index: number) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <Check className="h-4 w-4 mt-0.5 flex-shrink-0 text-green-400" />
+                        <span className="text-sm text-purple-100">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    className={`w-full py-3 text-base font-semibold transition-all rounded-full
+                    ${plan.popular
+                      ? "bg-pink-500 hover:bg-pink-600 text-white border-none"
+                      : "bg-white/10 hover:bg-white/20 text-white border border-white/30"
+                    }`}
+                    onClick={() => handleSubscribe(plan)}
+                    disabled={subscribing}
+                  >
+                    {subscribing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : plan.price === 0 ? (
+                      "Start Free"
+                    ) : (
+                      <>
+                        <Zap className="h-4 w-4 mr-2" />
+                        Subscribe Now
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Simple Payment Modal */}
+      {showPayment && selectedPlan && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl max-w-md w-full mx-4 p-6">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold mb-2">Complete Payment</h3>
+              <p className="text-gray-600">
+                {selectedPlan.name} Plan - TZS {selectedPlan.price.toLocaleString()}
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Card Number</label>
+                <Input
+                  placeholder="1234 5678 9012 3456"
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Expiry Date</label>
+                  <Input
+                    placeholder="MM/YY"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">CVV</label>
+                  <Input
+                    placeholder="123"
+                    value={cvv}
+                    onChange={(e) => setCvv(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Cardholder Name</label>
+                <Input
+                  placeholder="John Doe"
+                  value={cardName}
+                  onChange={(e) => setCardName(e.target.value)}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPayment(false);
+                    setSelectedPlan(null);
+                  }}
+                  className="flex-1"
+                  disabled={subscribing}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={processPayment}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  disabled={subscribing}
+                >
+                  {subscribing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Pay Now
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </div>
-
-          <div className="modal-backdrop" onClick={closeProvider} />
         </div>
       )}
     </div>

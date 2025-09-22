@@ -71,10 +71,10 @@ export default function SubscriptionPage({ user, onBack }: SubscriptionPageProps
 
   const handleSubscribe = (plan: any) => {
     if (plan.price === 0) {
-      // Free plan - subscribe immediately
+    
       processSubscription(plan);
     } else {
-      // Paid plan - show payment form
+      
       setSelectedPlan(plan);
       setShowPayment(true);
     }
@@ -111,19 +111,19 @@ export default function SubscriptionPage({ user, onBack }: SubscriptionPageProps
       setSubscribing(true);
       setMessage("");
 
-      // Process payment
+     
       await subscriptionService.processPayment({
         subscription_id: selectedPlan.id,
         amount: selectedPlan.price,
         payment_method: 'card'
       });
 
-      // Subscribe to plan
+      
       await subscriptionService.subscribe(selectedPlan.id);
       
       setMessage(`Payment successful! You are now subscribed to ${selectedPlan.name} plan.`);
       
-      // Reset form
+      
       setCardNumber("");
       setExpiryDate("");
       setCvv("");
@@ -134,7 +134,7 @@ export default function SubscriptionPage({ user, onBack }: SubscriptionPageProps
       setTimeout(() => setMessage(""), 5000);
       
     } catch (error) {
-      // Simulate success for demo
+     
       setMessage(`Payment processed! You are now subscribed to ${selectedPlan.name} plan.`);
       setShowPayment(false);
       setSelectedPlan(null);

@@ -11,11 +11,11 @@ import {
 
 export default function DashboardNavigation() {
   const handleSellerDemo = () => {
-    window.open('/demo-seller', '_blank');
+    window.open('/dashboardPreview', '_blank');
   };
 
   const handleBuyerDemo = () => {
-    window.open('/demo-buyer', '_blank');
+    window.open('/dashboardPreview', '_blank');
   };
 
   return (

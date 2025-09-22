@@ -1,147 +1,151 @@
-import { apiService } from './api';
 import { Subscription, UserSubscription } from './subscription';
 
-export class SubscriptionService {
-  async getAvailablePlans(): Promise<Subscription[]> {
-    try {
-      const response = await apiService.getSubscriptions();
-      console.log('API response:', response);
-      
-      // Handle paginated response format
-      const plans = response.results || response;
-      
-      if (!Array.isArray(plans)) {
-        console.warn('No plans available, using fallback');
-        return this.getFallbackPlans();
-      }
+// Correct the API_BASE_URL to be just the base path for all API calls
+const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
-      return plans.filter((plan: Subscription) => plan.is_active);
+class SubscriptionService {
+  private async request(endpoint: string, options: RequestInit = {}) {
+    const url = new URL(endpoint, API_BASE_URL);
+    const token = this.getAuthToken();
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Token ${token}` }), 
+      ...options.headers,
+    };
+
+    const response = await fetch(url.toString(), {
+      ...options,
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(errorData.detail || errorData.message || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  private getAuthToken(): string | null {
+    // Get token from localStorage, sessionStorage, or your auth context
+    if (typeof window !== 'undefined') {
+      // You should set a consistent key for your token, e.g., 'auth_token'
+      return localStorage.getItem('auth_token');
+    }
+    return null;
+  }
+
+  
+ async getAvailablePlans(): Promise<Subscription[]> {
+  return this.request('subscriptions/?status=active');
+}
+
+  async getFeaturedPlans(): Promise<Subscription[]> {
+    return this.request('subscriptions/featured/');
+  }
+
+  async getCurrentUserSubscription(): Promise<UserSubscription | null> {
+    try {
+      const userSubscriptions = await this.request('user-subscriptions/?status=active');
+      return userSubscriptions.length > 0 ? userSubscriptions[0] : null;
     } catch (error) {
-      console.warn('Failed to load plans from API, using fallback:', error);
-      return this.getFallbackPlans();
+      console.error('Error getting current subscription:', error);
+      return null;
     }
   }
 
-  private getFallbackPlans(): Subscription[] {
-    return [
-      {
-        id: 1,
-        plan_name: "Free",
-        price: "0.00",
-        duration: "lifetime",
-        duration_display: "Lifetime",
-        description: "Perfect for casual shoppers",
-        is_featured: false,
-        is_active: true,
-        status: "active",
-        status_display: "Active",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        price_display: ''
-      },
-      {
-        id: 2,
-        plan_name: "Premium",
-        price: "15000.00",
-        duration: "monthly",
-        duration_display: "Monthly",
-        description: "Best for fashion enthusiasts",
-        is_featured: true,
-        is_active: true,
-        status: "active",
-        status_display: "Active",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        price_display: ''
-      },
-      {
-        id: 3,
-        plan_name: "VIP",
-        price: "25000.00",
-        duration: "monthly",
-        duration_display: "Monthly",
-        description: "Ultimate shopping experience",
-        is_featured: false,
-        is_active: true,
-        status: "active",
-        status_display: "Active",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        price_display: ''
-      },
-    ];
+  // Create a user subscription (store subscription before payment)
+  async createUserSubscription(subscriptionId: number): Promise<UserSubscription> {
+    return this.request('user-subscriptions/', {
+      method: 'POST',
+      body: JSON.stringify({
+        subscription: subscriptionId,
+        status: 'pending', // Start as pending until payment is completed
+      }),
+    });
   }
 
-  async subscribe(planId: number): Promise<UserSubscription> {
-    try {
-      const subscription = await apiService.createUserSubscription(planId);
-      
-      // Save to localStorage as backup
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('userSubscription', JSON.stringify({
-          planId: planId,
-          subscribedAt: new Date().toISOString(),
-          active: true
-        }));
-      }
-      
-      return subscription;
-    } catch (error) {
-      
-      console.warn('API subscription failed, creating local subscription:', error);
-      
-      const mockSubscription = {
-        id: Date.now(),
-        subscription: {
-          id: planId,
-          plan_name: planId === 1 ? 'Free' : planId === 2 ? 'Premium' : 'VIP'
-        },
+  // Activate user subscription after successful payment
+  async activateUserSubscription(userSubscriptionId: number): Promise<UserSubscription> {
+    return this.request(`user-subscriptions/${userSubscriptionId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        status: 'active',
         start_date: new Date().toISOString(),
-        is_active: true
-      } as UserSubscription;
-      
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('userSubscription', JSON.stringify({
-          planId: planId,
-          subscribedAt: new Date().toISOString(),
-          active: true
-        }));
-      }
-      
-      return mockSubscription;
+      }),
+    });
+  }
+
+  // Create payment record
+  async createPayment(paymentData: {
+    user_subscription: number;
+    amount: string;
+    currency: string;
+    payment_method: string;
+    payment_gateway: string;
+    transaction_id?: string;
+    phone_number?: string;
+  }): Promise<any> {
+    return this.request('payments/', {
+      method: 'POST',
+      body: JSON.stringify(paymentData),
+    });
+  }
+
+  // Update payment status (for testing/simulation)
+  async updatePaymentStatus(paymentId: number, status: 'pending' | 'completed' | 'failed'): Promise<any> {
+    return this.request(`payments/${paymentId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  // Get user's payment history
+  async getPaymentHistory(): Promise<any[]> {
+    return this.request('payments/');
+  }
+
+  // Get specific payment details
+  async getPayment(paymentId: number): Promise<any> {
+    return this.request(`payments/${paymentId}/`);
+  }
+
+  // Cancel user subscription
+  async cancelUserSubscription(userSubscriptionId: number): Promise<UserSubscription> {
+    return this.request(`user-subscriptions/${userSubscriptionId}/cancel/`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        status: 'cancelled',
+        end_date: new Date().toISOString(),
+      }),
+    });
+  }
+
+  // Get subscription analytics/stats for the user
+  async getSubscriptionStats(): Promise<any> {
+    return this.request('user-subscriptions/stats/');
+  }
+
+  // Validate subscription status
+  async validateSubscription(userSubscriptionId: number): Promise<boolean> {
+    try {
+      const subscription = await this.request(`user-subscriptions/${userSubscriptionId}/`);
+      return subscription.is_active && new Date(subscription.end_date) > new Date();
+    } catch {
+      return false;
     }
   }
 
-  async processPayment(paymentData: {
-    subscription_id: number;
-    amount: number;
-    payment_method: string;
-    phone_number?: string;
-    transaction_id?: string;
-  }) {
-    try {
-      const payment = await apiService.createPayment({
-        amount: paymentData.amount,
-        currency: 'TZS',
-        payment_method: paymentData.payment_method,
-        ...(paymentData.phone_number && { phone_number: paymentData.phone_number }),
-        ...(paymentData.transaction_id && { transaction_id: paymentData.transaction_id }),
-      });
-      
-      return payment;
-    } catch (error) {
-      
-      console.warn('API payment failed, simulating success:', error);
-      
-      return {
-        id: Date.now(),
-        amount: paymentData.amount,
-        currency: 'TZS',
-        status: 'completed',
-        payment_method: paymentData.payment_method,
-        created_at: new Date().toISOString()
-      };
-    }
+  // Legacy methods for backward compatibility (you can remove these if not needed)
+  async subscribe(subscriptionId: number): Promise<UserSubscription> {
+    console.warn('subscribe() is deprecated. Use createUserSubscription() instead.');
+    return this.createUserSubscription(subscriptionId);
+  }
+
+  async processPayment(paymentData: any): Promise<any> {
+    console.warn('processPayment() is deprecated. Use createPayment() instead.');
+    return this.createPayment(paymentData);
   }
 }
 

@@ -47,7 +47,6 @@ export default function SubscriptionPage({
   const [backendPlans, setBackendPlans] = useState<Subscription[]>([]);
   const [currentUserSubscription, setCurrentUserSubscription] =
     useState<UserSubscription | null>(null);
-  const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
   const [error, setError] = useState("");
 
@@ -68,7 +67,6 @@ export default function SubscriptionPage({
 
   const loadSubscriptionData = async () => {
     try {
-      setLoading(true);
       setError("");
 
       console.log("Loading subscription data...");
@@ -87,7 +85,7 @@ export default function SubscriptionPage({
       console.error("Error loading data:", err);
       setError(err.message || "Failed to load subscription data");
 
-      // Fallback to sample data
+      // Fallback to sample data for development
       setBackendPlans([
         {
           id: 1,
@@ -132,8 +130,6 @@ export default function SubscriptionPage({
           updated_at: new Date().toISOString(),
         },
       ] as Subscription[]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -273,26 +269,6 @@ export default function SubscriptionPage({
     setPaymentPending(true);
   };
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <BuyerHeader
-          user={user}
-          onProfileClick={() => {}}
-          showSearch={false}
-          currentPage="subscription"
-        />
-        <div className="container mx-auto px-6 py-6 flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-muted-foreground">Loading subscription plans...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const getCurrentSubscription = () => {
     if (currentUserSubscription) {
       return {
@@ -302,10 +278,7 @@ export default function SubscriptionPage({
         active: currentUserSubscription.is_active,
       };
     }
-
-    // Fallback to localStorage
-    const saved = localStorage.getItem("userSubscription");
-    return saved ? JSON.parse(saved) : null;
+    return null;
   };
 
   const currentSubscription = getCurrentSubscription();
@@ -749,7 +722,7 @@ export default function SubscriptionPage({
         </div>
       )}
 
-      {/* Provider modal */}
+      {/* Provider Modal */}
       {selectedProvider && currentPlan && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
@@ -778,7 +751,6 @@ export default function SubscriptionPage({
                   <p className="text-sm text-purple-200">JINA WALII GKUKU (MITANDAO YOTE)</p>
                 </div>
               </div>
-
               <div className="space-y-3">
                 <h6 className="font-semibold text-white">MAELEKEZO</h6>
                 <ol className="space-y-2 text-sm text-purple-200">

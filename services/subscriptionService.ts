@@ -1,151 +1,218 @@
-import { Subscription, UserSubscription } from './subscription';
+// services/subscriptionService.ts
 
-// Correct the API_BASE_URL to be just the base path for all API calls
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
-
-class SubscriptionService {
-  private async request(endpoint: string, options: RequestInit = {}) {
-    const url = new URL(endpoint, API_BASE_URL);
-    const token = this.getAuthToken();
-    
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Token ${token}` }), 
-      ...options.headers,
-    };
-
-    const response = await fetch(url.toString(), {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-      throw new Error(errorData.detail || errorData.message || `HTTP ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  private getAuthToken(): string | null {
-    // Get token from localStorage, sessionStorage, or your auth context
-    if (typeof window !== 'undefined') {
-      // You should set a consistent key for your token, e.g., 'auth_token'
-      return localStorage.getItem('auth_token');
-    }
-    return null;
-  }
-
-  
- async getAvailablePlans(): Promise<Subscription[]> {
-  return this.request('subscriptions/?status=active');
+export interface Subscription {
+  id: number;
+  plan_name: string;
+  price: string;
+  duration: string;
+  duration_display: string;
+  description: string;
+  is_featured: boolean;
+  is_active: boolean;
+  status: string;
+  status_display: string;
+  created_at: string;
+  updated_at: string;
 }
 
-  async getFeaturedPlans(): Promise<Subscription[]> {
-    return this.request('subscriptions/featured/');
+export interface UserSubscription {
+  id: string;
+  subscription: Subscription;
+  payment?: Payment;
+  status: string;
+  start_date: string;
+  end_date?: string;
+  auto_renewal: boolean;
+  trial_end_date?: string;
+  is_active: boolean;
+  is_trial_active?: boolean;
+  days_remaining?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Payment {
+  id: string;
+  subscription: number;
+  payment_method_type: string;
+  amount: string;
+  currency: string;
+  status: string;
+  transaction_id?: string;
+  failure_reason?: string;
+  processed_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  card_type: string;
+  last_four: string;
+  cardholder_name: string;
+  expiry_month: number;
+  expiry_year: number;
+  is_default: boolean;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface PaymentRequest {
+  subscription_id: number;
+  amount: string;
+  payment_method: string;
+  card_number?: string;
+  expiry_month?: number;
+  expiry_year?: number;
+  cvv?: string;
+  cardholder_name?: string;
+  save_card?: boolean;
+  phone_number?: string;
+  transaction_id?: string;
+}
+
+export interface ApiResponse<T> {
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+class SubscriptionService {
+  private baseURL: string;
+
+  constructor() {
+    this.baseURL =  'http://127.0.0.1:8000/';
   }
 
+  // Get auth headers with token
+  private getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : '',
+    };
+  }
+
+  // Handle API responses
+  private async handleResponse<T>(response: Response): Promise<T> {
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || data.error || 'Something went wrong');
+    }
+    
+    return data;
+  }
+
+  // Get available subscription plans
+  async getAvailablePlans(): Promise<Subscription[]> {
+    try {
+      const response = await fetch(`${this.baseURL}/subscriptions/`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      return await this.handleResponse<Subscription[]>(response);
+    } catch (error) {
+      console.error('Error fetching plans:', error);
+      throw error;
+    }
+  }
+
+  // Get current user subscription
   async getCurrentUserSubscription(): Promise<UserSubscription | null> {
     try {
-      const userSubscriptions = await this.request('user-subscriptions/?status=active');
-      return userSubscriptions.length > 0 ? userSubscriptions[0] : null;
+      const response = await fetch(`${this.baseURL}/user-subscription/`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      if (response.status === 404) {
+        return null; // No active subscription
+      }
+
+      return await this.handleResponse<UserSubscription>(response);
     } catch (error) {
-      console.error('Error getting current subscription:', error);
-      return null;
+      console.error('Error fetching user subscription:', error);
+      throw error;
     }
   }
 
-  // Create a user subscription (store subscription before payment)
-  async createUserSubscription(subscriptionId: number): Promise<UserSubscription> {
-    return this.request('user-subscriptions/', {
-      method: 'POST',
-      body: JSON.stringify({
-        subscription: subscriptionId,
-        status: 'pending', // Start as pending until payment is completed
-      }),
-    });
-  }
-
-  // Activate user subscription after successful payment
-  async activateUserSubscription(userSubscriptionId: number): Promise<UserSubscription> {
-    return this.request(`user-subscriptions/${userSubscriptionId}/`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        status: 'active',
-        start_date: new Date().toISOString(),
-      }),
-    });
-  }
-
-  // Create payment record
-  async createPayment(paymentData: {
-    user_subscription: number;
-    amount: string;
-    currency: string;
-    payment_method: string;
-    payment_gateway: string;
-    transaction_id?: string;
-    phone_number?: string;
-  }): Promise<any> {
-    return this.request('payments/', {
-      method: 'POST',
-      body: JSON.stringify(paymentData),
-    });
-  }
-
-  // Update payment status (for testing/simulation)
-  async updatePaymentStatus(paymentId: number, status: 'pending' | 'completed' | 'failed'): Promise<any> {
-    return this.request(`payments/${paymentId}/`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status }),
-    });
-  }
-
-  // Get user's payment history
-  async getPaymentHistory(): Promise<any[]> {
-    return this.request('payments/');
-  }
-
-  // Get specific payment details
-  async getPayment(paymentId: number): Promise<any> {
-    return this.request(`payments/${paymentId}/`);
-  }
-
-  // Cancel user subscription
-  async cancelUserSubscription(userSubscriptionId: number): Promise<UserSubscription> {
-    return this.request(`user-subscriptions/${userSubscriptionId}/cancel/`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        status: 'cancelled',
-        end_date: new Date().toISOString(),
-      }),
-    });
-  }
-
-  // Get subscription analytics/stats for the user
-  async getSubscriptionStats(): Promise<any> {
-    return this.request('user-subscriptions/stats/');
-  }
-
-  // Validate subscription status
-  async validateSubscription(userSubscriptionId: number): Promise<boolean> {
+  // Process payment
+  async processPayment(paymentData: PaymentRequest): Promise<Payment> {
     try {
-      const subscription = await this.request(`user-subscriptions/${userSubscriptionId}/`);
-      return subscription.is_active && new Date(subscription.end_date) > new Date();
-    } catch {
-      return false;
+      const response = await fetch(`${this.baseURL}/process-payment/`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(paymentData),
+      });
+
+      return await this.handleResponse<Payment>(response);
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      throw error;
     }
   }
 
-  // Legacy methods for backward compatibility (you can remove these if not needed)
+  // Subscribe user to a plan
   async subscribe(subscriptionId: number): Promise<UserSubscription> {
-    console.warn('subscribe() is deprecated. Use createUserSubscription() instead.');
-    return this.createUserSubscription(subscriptionId);
+    try {
+      const response = await fetch(`${this.baseURL}/subscribe/${subscriptionId}/`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+      });
+
+      return await this.handleResponse<UserSubscription>(response);
+    } catch (error) {
+      console.error('Error subscribing:', error);
+      throw error;
+    }
   }
 
-  async processPayment(paymentData: any): Promise<any> {
-    console.warn('processPayment() is deprecated. Use createPayment() instead.');
-    return this.createPayment(paymentData);
+  // Get user's saved payment methods
+  async getPaymentMethods(): Promise<PaymentMethod[]> {
+    try {
+      const response = await fetch(`${this.baseURL}/payment-methods/`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      return await this.handleResponse<PaymentMethod[]>(response);
+    } catch (error) {
+      console.error('Error fetching payment methods:', error);
+      throw error;
+    }
+  }
+
+  // Add new payment method
+  async addPaymentMethod(paymentMethodData: Omit<PaymentMethod, 'id' | 'created_at'>): Promise<PaymentMethod> {
+    try {
+      const response = await fetch(`${this.baseURL}/payment-methods/`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(paymentMethodData),
+      });
+
+      return await this.handleResponse<PaymentMethod>(response);
+    } catch (error) {
+      console.error('Error adding payment method:', error);
+      throw error;
+    }
+  }
+
+  // Get payment history
+  async getPaymentHistory(): Promise<Payment[]> {
+    try {
+      const response = await fetch(`${this.baseURL}/payment-history/`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      return await this.handleResponse<Payment[]>(response);
+    } catch (error) {
+      console.error('Error fetching payment history:', error);
+      throw error;
+    }
   }
 }
 

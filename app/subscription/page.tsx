@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import BuyerHeader from "@/components/BuyerHeader";
 import { subscriptionService } from "@/services/subscriptionService";
-import { Subscription, UserSubscription } from "@/services/subscription";
+ import { Subscription, UserSubscription } from "@/services/subscription";
 import {
   formatPrice,
   getPlanFeatures,
@@ -49,8 +49,6 @@ export default function SubscriptionPage({
     useState<UserSubscription | null>(null);
   const [subscribing, setSubscribing] = useState(false);
   const [error, setError] = useState("");
-
-  // UI state
   const [success, setSuccess] = useState("");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<any>(null);
@@ -60,7 +58,16 @@ export default function SubscriptionPage({
   const [message, setMessage] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Load data on component mount
+  // Card form state
+  const [cardForm, setCardForm] = useState({
+    cardNumber: "",
+    expiryMonth: "",
+    expiryYear: "",
+    cvv: "",
+    cardholderName: "",
+    saveCard: false
+  });
+
   useEffect(() => {
     loadSubscriptionData();
   }, []);
@@ -182,7 +189,7 @@ export default function SubscriptionPage({
       setError("");
 
       if (plan.price === 0) {
-        // Free plan - subscribe directly
+        // Free plan - direct subscription
         const subscription = await subscriptionService.subscribe(plan.backendId);
         setCurrentUserSubscription(subscription);
         setSuccess(`Successfully subscribed to ${plan.name} plan!`);
@@ -199,6 +206,95 @@ export default function SubscriptionPage({
     }
   };
 
+  const handleCardFormChange = (field: string, value: string | boolean) => {
+    setCardForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const validateCardForm = () => {
+    const { cardNumber, expiryMonth, expiryYear, cvv, cardholderName } = cardForm;
+    
+    if (!cardNumber || !expiryMonth || !expiryYear || !cvv || !cardholderName) {
+      setError("Please fill in all card details");
+      return false;
+    }
+
+    // Basic validation
+    if (cardNumber.replace(/\s/g, '').length < 13) {
+      setError("Invalid card number");
+      return false;
+    }
+
+    if (parseInt(expiryMonth) < 1 || parseInt(expiryMonth) > 12) {
+      setError("Invalid expiry month");
+      return false;
+    }
+
+    const currentYear = new Date().getFullYear();
+    if (parseInt(expiryYear) < currentYear) {
+      setError("Card has expired");
+      return false;
+    }
+
+    if (cvv.length < 3 || cvv.length > 4) {
+      setError("Invalid CVV");
+      return false;
+    }
+
+    return true;
+  };
+
+  const processCardPayment = async () => {
+    if (!currentPlan) return;
+
+    if (!validateCardForm()) {
+      return;
+    }
+
+    try {
+      setSubscribing(true);
+      setError("");
+
+      // Process payment with backend
+      const paymentData = {
+        subscription_id: currentPlan.backendId,
+        amount: currentPlan.price.toString(),
+        payment_method: "card",
+        card_number: cardForm.cardNumber.replace(/\s/g, ''),
+        expiry_month: parseInt(cardForm.expiryMonth),
+        expiry_year: parseInt(cardForm.expiryYear),
+        cvv: cardForm.cvv,
+        cardholder_name: cardForm.cardholderName,
+        save_card: cardForm.saveCard
+      };
+
+      const payment = await subscriptionService.processPayment(paymentData);
+
+      if (payment.status === 'completed') {
+        // Create subscription after successful payment
+        const subscription = await subscriptionService.subscribe(currentPlan.backendId);
+        setCurrentUserSubscription(subscription);
+        
+        setSuccess(
+          `Successfully subscribed to ${currentPlan.name} plan! Payment ID: ${payment.transaction_id}`
+        );
+
+        // Close modals and reset form
+        closePaymentModal();
+        setTimeout(() => setSuccess(""), 5000);
+      } else {
+        setError("Payment failed. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Payment error:", err);
+      setError(err.message || "Payment failed. Please try again.");
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
   const processPayment = async (
     paymentMethod: string,
     paymentDetails: any = {}
@@ -209,7 +305,12 @@ export default function SubscriptionPage({
       setSubscribing(true);
       setError("");
 
-      // Create payment record
+      if (paymentMethod === 'card') {
+        await processCardPayment();
+        return;
+      }
+
+      // Handle mobile money payments
       const payment = await subscriptionService.processPayment({
         subscription_id: currentPlan.backendId,
         amount: currentPlan.price,
@@ -217,7 +318,7 @@ export default function SubscriptionPage({
         ...paymentDetails,
       });
 
-      // Create subscription
+      // Create subscription after successful payment
       const subscription = await subscriptionService.subscribe(
         currentPlan.backendId
       );
@@ -245,6 +346,15 @@ export default function SubscriptionPage({
     setPaymentType("card");
     setMessage("");
     setPaymentPending(false);
+    // Reset card form
+    setCardForm({
+      cardNumber: "",
+      expiryMonth: "",
+      expiryYear: "",
+      cvv: "",
+      cardholderName: "",
+      saveCard: false
+    });
   };
 
   const openProvider = (provider: any) => {
@@ -638,12 +748,53 @@ export default function SubscriptionPage({
 
                 {paymentType === "card" ? (
                   <div className="space-y-3">
-                    <Input placeholder="Card Number" className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input placeholder="MM/YY" className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500" />
-                      <Input placeholder="CVV" className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500" />
+                    <Input 
+                      placeholder="Card Number" 
+                      className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500" 
+                      value={cardForm.cardNumber}
+                      onChange={(e) => handleCardFormChange('cardNumber', e.target.value)}
+                    />
+                    <div className="grid grid-cols-3 gap-3">
+                      <Input 
+                        placeholder="MM" 
+                        className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500" 
+                        value={cardForm.expiryMonth}
+                        onChange={(e) => handleCardFormChange('expiryMonth', e.target.value)}
+                        maxLength={2}
+                      />
+                      <Input 
+                        placeholder="YYYY" 
+                        className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500" 
+                        value={cardForm.expiryYear}
+                        onChange={(e) => handleCardFormChange('expiryYear', e.target.value)}
+                        maxLength={4}
+                      />
+                      <Input 
+                        placeholder="CVV" 
+                        className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500" 
+                        value={cardForm.cvv}
+                        onChange={(e) => handleCardFormChange('cvv', e.target.value)}
+                        maxLength={4}
+                      />
                     </div>
-                    <Input placeholder="Cardholder Name" className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500" />
+                    <Input 
+                      placeholder="Cardholder Name" 
+                      className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500" 
+                      value={cardForm.cardholderName}
+                      onChange={(e) => handleCardFormChange('cardholderName', e.target.value)}
+                    />
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="saveCard"
+                        checked={cardForm.saveCard}
+                        onChange={(e) => handleCardFormChange('saveCard', e.target.checked)}
+                        className="rounded border-purple-700 bg-purple-800 text-pink-500 focus:ring-pink-500"
+                      />
+                      <label htmlFor="saveCard" className="text-sm text-purple-200">
+                        Save card for future payments
+                      </label>
+                    </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
@@ -685,7 +836,7 @@ export default function SubscriptionPage({
                 size="lg"
                 onClick={() => {
                   if (paymentType === "card") {
-                    processPayment("card");
+                    processCardPayment();
                   } else {
                     setMessage(
                       "Choose a provider below for Lipa Namba instructions."
@@ -794,20 +945,6 @@ export default function SubscriptionPage({
                 {message && (
                   <div className="p-3 bg-purple-800 border border-purple-700 rounded-lg text-sm text-purple-200">
                     {message}
-                  </div>
-                )}
-
-                {!paymentPending && (
-                  <div className="space-y-3">
-                    <Input
-                      placeholder="Enter your phone number (e.g. 0712345678)"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="bg-purple-800 border-purple-700 text-white placeholder-purple-400 focus:border-pink-500"
-                    />
-                    <Button onClick={onLipaHaraka} className="w-full py-3 text-base font-semibold transition-all rounded-full bg-pink-500 hover:bg-pink-600 text-white border-none">
-                      Send Payment Request
-                    </Button>
                   </div>
                 )}
 

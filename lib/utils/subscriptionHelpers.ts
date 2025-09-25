@@ -1,48 +1,57 @@
-export const formatPrice = (price: string | number): number => {
-  if (typeof price === 'number') return price;
-  return parseFloat(price.replace(/[^0-9.-]/g, '')) || 0;
-};
+// lib/utils/subscriptionHelpers.js
 
-export const getPlanFeatures = (planName: string): string[] => {
-  const features: Record<string, string[]> = {
-    'Free': [
-      "Browse all products",
-      "Basic search filters",
-      "Save up to 10 favorites",
-      "Standard customer support",
-      "Mobile app access",
+// Define your plans with a `const` assertion to infer the literal keys.
+const planData = {
+  Free: {
+    features: [
+      'Browse all products',
+      'Basic search functionality',
+      '5 favorites maximum',
+      'Standard customer support'
     ],
-    'Premium': [
-      "Everything in Free",
-      "Unlimited favorites",
-      "Advanced search & filters",
-      "Price drop notifications",
-      "Early access to sales",
-      "Priority customer support",
-      "Exclusive deals & discounts",
-      "Personal style recommendations",
+    color: 'blue'
+  },
+  Premium: {
+    features: [
+      'Everything in Free',
+      'Unlimited favorites',
+      'Price drop alerts',
+      'Early access to sales',
+      'Priority customer support',
+      'Advanced filters',
+      'Wishlist sharing'
     ],
-    'VIP': [
-      "Everything in Premium",
-      "Free shipping on all orders",
-      "VIP customer service",
-      "Personal shopping assistant",
-      "Exclusive VIP-only products",
-      "Monthly style consultation",
-      "Birthday & anniversary gifts",
-      "Private sales access",
-      "Return shipping covered",
-    ]
-  };
-  
-  return features[planName] || [];
-};
+    color: 'purple'
+  },
+  VIP: {
+    features: [
+      'Everything in Premium',
+      'Personal shopping assistant',
+      'VIP customer support',
+      'Exclusive deals and offers',
+      'Free shipping on all orders',
+      'Monthly style consultation',
+      'Priority access to new arrivals'
+    ],
+    color: 'gold' // <-- Add the missing 'color' property here
+  },
+} as const;
 
-export const getPlanColor = (planName: string): string => {
-  const colors: Record<string, string> = {
-    'Free': 'plan-card plan-card--free',
-    'Premium': 'plan-card plan-card--premium',
-    'VIP': 'plan-card plan-card--vip'
-  };
-  return colors[planName] || '';
-};
+// Create a union type of valid plan names.
+type PlanName = keyof typeof planData;
+
+// Format price from string to number
+export function formatPrice(priceString: string) {
+  return parseFloat(priceString || '0');
+}
+
+// Get plan features based on plan name
+export function getPlanFeatures(planName: PlanName) {
+  return planData[planName].features;
+}
+
+// Get plan color scheme
+export function getPlanColor(planName: PlanName) {
+  return planData[planName].color;
+}
+

@@ -27,7 +27,7 @@ export default function LoginPage() {
 
     try {
       // Example API call - replace with your real backend endpoint
-      const res = await fetch("/api/auth/signin", {
+      const res = await fetch("/api/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -37,7 +37,7 @@ export default function LoginPage() {
         throw new Error("Invalid credentials");
       }
 
-      // Assume backend sets auth cookie/session
+      // Assume backend sets api cookie/session
       router.push("/dashboard"); // redirect after login
     } catch (err: any) {
       setError(err.message || "Something went wrong");

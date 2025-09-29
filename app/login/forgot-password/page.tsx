@@ -64,7 +64,7 @@ export default function ForgotAndResetPage() {
     setSending(true);
     try {
       // === Replace this with your backend endpoint ===
-      // const res = await fetch('/api/auth/forgot-password', {
+      // const res = await fetch('/api/forgot-password', {
       //   method: 'POST',
       //   headers: {'Content-Type': 'application/json'},
       //   body: JSON.stringify({ email: email.trim() })
@@ -114,7 +114,7 @@ export default function ForgotAndResetPage() {
     setResetting(true);
     try {
       // === Replace with your backend endpoint ===
-      // const res = await fetch('/api/auth/reset-password', {
+      // const res = await fetch('/api/reset-password', {
       //   method: 'POST',
       //   headers: {'Content-Type': 'application/json'},
       //   body: JSON.stringify({ token: token.trim(), password })

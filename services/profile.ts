@@ -9,7 +9,7 @@ async function fetchUserProfile() {
   // const token = localStorage.getItem('authToken');
   if (!authToken) { // Using the variable from login example
     console.error('No authentication token found.');
-    // Redirect to login or handle lack of auth
+    // Redirect to login or handle lack of api
     return { success: false, errors: { detail: 'Not authenticated.' } };
   }
 
@@ -54,6 +54,6 @@ async function fetchUserProfile() {
 //     // Display user info in the UI
 //   } else {
 //     console.log("Profile fetch errors:", result.errors);
-//     // Handle errors (especially auth errors)
+//     // Handle errors (especially api errors)
 //   }
 // });

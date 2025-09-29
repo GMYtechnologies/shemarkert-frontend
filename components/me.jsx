@@ -1,6 +1,6 @@
 const token = localStorage.getItem('token');
 
-fetch('/api/auth/me/', {
+fetch('/api/api/me/', {
   headers: {
     'Authorization': `Bearer ${token}`
   }

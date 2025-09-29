@@ -10,7 +10,7 @@ import { ModeToggle } from '@/components/sellers';
 import BuyerHeader from '@/components/BuyerHeader';
 import Categories from '@/components/Categories';
 import BuyerProfile from '@/components/BuyerProfile';
-import ProductDetailsDialog from '@/components/ProductDetailsDialog';
+// import ProductDetailsDialog from '@/components/ProductDetailsDialog';
 import { 
 
   Heart, 
@@ -105,8 +105,8 @@ export default function BuyerDashboard({ user }: BuyerDashboardProps) {
         
         // Extract unique categories from products
         
-        const uniqueCategories = [...new Set(data.products.map((product: Product) => product.category))];
-        setCategories(uniqueCategories);
+        const Categories = [...new Set(data.products.map((product: Product) => product.category))];
+        setCategories(categories);
       } else {
         throw new Error(data.message || 'Failed to fetch products');
       }
@@ -458,15 +458,7 @@ export default function BuyerDashboard({ user }: BuyerDashboardProps) {
         )}
       </div>
 
-      { /* Product Details Dialog */ }
-      <ProductDetailsDialog
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        productRating={productRatings[selectedProduct?.id || 0] || 0}
-        onRateProduct={handleRateProduct}
-        comments={productComments[selectedProduct?.id || 0] || []}
-        onAddComment={handleAddComment}
-      />
+    
     </div>
   );
 }

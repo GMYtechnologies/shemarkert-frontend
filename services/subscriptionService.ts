@@ -81,30 +81,32 @@ class SubscriptionService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL =  'http://127.0.0.1:8000/';
+    this.baseURL = 'http://127.0.0.1:8000'; 
   }
 
-  // Get auth headers with token
+  
   private getAuthHeaders(): Record<string, string> {
     const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     return {
       'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : '',
+      
+      ...(token && { 'Authorization': `Bearer ${token}` }),
     };
   }
 
-  // Handle API responses
+  
   private async handleResponse<T>(response: Response): Promise<T> {
-    const data = await response.json();
-    
+   
     if (!response.ok) {
-      throw new Error(data.message || data.error || 'Something went wrong');
+      const errorText = await response.text(); 
+      throw new Error(`Server responded with ${response.status}: ${errorText}`);
     }
     
-    return data;
+    
+    return await response.json();
   }
 
-  // Get available subscription plans
+  
   async getAvailablePlans(): Promise<Subscription[]> {
     try {
       const response = await fetch(`${this.baseURL}/subscriptions/`, {
@@ -119,7 +121,7 @@ class SubscriptionService {
     }
   }
 
-  // Get current user subscription
+ 
   async getCurrentUserSubscription(): Promise<UserSubscription | null> {
     try {
       const response = await fetch(`${this.baseURL}/user-subscription/`, {
@@ -127,8 +129,9 @@ class SubscriptionService {
         headers: this.getAuthHeaders(),
       });
 
+      
       if (response.status === 404) {
-        return null; // No active subscription
+        return null; 
       }
 
       return await this.handleResponse<UserSubscription>(response);
@@ -138,9 +141,10 @@ class SubscriptionService {
     }
   }
 
-  // Process payment
+  
   async processPayment(paymentData: PaymentRequest): Promise<Payment> {
     try {
+      
       const response = await fetch(`${this.baseURL}/process-payment/`, {
         method: 'POST',
         headers: this.getAuthHeaders(),
@@ -154,9 +158,10 @@ class SubscriptionService {
     }
   }
 
-  // Subscribe user to a plan
+  
   async subscribe(subscriptionId: number): Promise<UserSubscription> {
     try {
+      
       const response = await fetch(`${this.baseURL}/subscribe/${subscriptionId}/`, {
         method: 'POST',
         headers: this.getAuthHeaders(),
@@ -169,7 +174,7 @@ class SubscriptionService {
     }
   }
 
-  // Get user's saved payment methods
+  
   async getPaymentMethods(): Promise<PaymentMethod[]> {
     try {
       const response = await fetch(`${this.baseURL}/payment-methods/`, {
@@ -184,7 +189,7 @@ class SubscriptionService {
     }
   }
 
-  // Add new payment method
+  
   async addPaymentMethod(paymentMethodData: Omit<PaymentMethod, 'id' | 'created_at'>): Promise<PaymentMethod> {
     try {
       const response = await fetch(`${this.baseURL}/payment-methods/`, {
@@ -200,7 +205,7 @@ class SubscriptionService {
     }
   }
 
-  // Get payment history
+  
   async getPaymentHistory(): Promise<Payment[]> {
     try {
       const response = await fetch(`${this.baseURL}/payment-history/`, {

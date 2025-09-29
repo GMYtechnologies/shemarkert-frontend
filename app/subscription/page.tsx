@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import BuyerHeader from "@/components/BuyerHeader";
 import { subscriptionService } from "@/services/subscriptionService";
- import { Subscription, UserSubscription } from "@/services/subscription";
+import { Subscription, UserSubscription } from "@/services/subscription";
 import {
   formatPrice,
   getPlanFeatures,
